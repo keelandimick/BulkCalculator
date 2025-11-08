@@ -1,0 +1,4 @@
+ltl_env/
+scripts/
+*.pyc
+.DS_Store

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Pricing Calculator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .calculator-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .product-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .retail-price {
+            font-size: 24px;
+            color: #666;
+            text-decoration: line-through;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .pricing-breakdown {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+        }
+        
+        .pricing-row.total {
+            border-top: 2px solid #1976d2;
+            padding-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .savings {
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .add-to-cart {
+            background: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .add-to-cart:hover {
+            background: #0056b3;
+        }
+        
+        .moq-notice {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            color: #856404;
+            display: none;
+        }
+        
+        .price-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .price-box {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .price-box.retail {
+            background: #ffebee;
+        }
+        
+        .price-box.bulk {
+            background: #e8f5e9;
+        }
+        
+        .price-box h4 {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+        
+        .price-box .unit-price {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .price-box .total-price {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h2>Bulk Order Pricing</h2>
+        
+        <div class="product-info">
+            <div class="product-name" id="productName">Product Name</div>
+        </div>
+        
+        <div class="moq-notice" id="moqNotice">
+            ⚠️ Minimum order quantity for bulk pricing: <span id="moqValue">100</span> units
+        </div>
+        
+        <div class="input-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" value="1" min="1" step="1">
+        </div>
+        
+        <div class="price-comparison">
+            <div class="price-box retail">
+                <h4>Retail Price</h4>
+                <div class="unit-price" id="retailUnitPrice">$299.99</div>
+                <div class="price-breakdown" id="retailBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">$259.99 + $40 shipping</div>
+            </div>
+            <div class="price-box bulk">
+                <h4>Bulk Price</h4>
+                <div class="unit-price" id="bulkUnitPrice">$254.99</div>
+                <div class="price-breakdown" id="bulkBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">$254.99 (freight not included)</div>
+            </div>
+        </div>
+        
+        <div class="order-summaries" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+            <div class="pricing-breakdown" style="background: #ffebee;">
+                <h4 style="margin: 0 0 15px 0; color: #d32f2f;">Retail Order Summary</h4>
+                <div class="pricing-row">
+                    <span>Unit Cost:</span>
+                    <span id="retailUnitCost">$0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Quantity:</span>
+                    <span id="retailQuantity">0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Discount:</span>
+                    <span id="retailDiscount">0%</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Product Subtotal:</span>
+                    <span id="retailProductSubtotal">$0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Shipping:</span>
+                    <span id="retailShippingTotal">$0</span>
+                </div>
+                <div class="pricing-row total">
+                    <span>Total Order:</span>
+                    <span id="retailOrderTotal">$0</span>
+                </div>
+            </div>
+            
+            <div class="pricing-breakdown" style="background: #e8f5e9;">
+                <h4 style="margin: 0 0 15px 0; color: #388e3c;">Bulk Order Summary</h4>
+                <div class="pricing-row">
+                    <span>Unit Cost:</span>
+                    <span id="bulkUnitCost">$0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Quantity:</span>
+                    <span id="bulkQuantity">0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Discount:</span>
+                    <span id="bulkDiscount">0%</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Product Subtotal:</span>
+                    <span id="bulkProductTotal">$0</span>
+                </div>
+                <div class="pricing-row">
+                    <span>Freight:</span>
+                    <span id="freightCost">$0</span>
+                </div>
+                <div class="pricing-row total">
+                    <span>Total Order:</span>
+                    <span id="bulkOrderTotal">$0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="savings" id="savingsBox">
+            You save $4,500 (15%) with bulk pricing!
+        </div>
+        
+        <button class="add-to-cart" onclick="addToCart()">Add to Cart</button>
+    </div>
+
+    <script src="bulk_pricing_calculator_v2.js"></script>
+</body>
+</html>
