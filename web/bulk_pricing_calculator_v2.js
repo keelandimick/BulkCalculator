@@ -181,7 +181,7 @@ function addProductSelector() {
             <label for="productSelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product:</label>
             <select id="productSelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
                 ${Object.entries(productCatalog).map(([sku, product]) => 
-                    `<option value="${sku}">${sku} - ${product.name}</option>`
+                    `<option value="${sku}">${product.name}</option>`
                 ).join('')}
             </select>
         </div>
