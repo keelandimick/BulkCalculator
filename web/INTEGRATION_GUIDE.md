@@ -1,4 +1,4 @@
-# Bulk Pricing Calculator - Website Integration Guide
+# Bulk Calculator - Website Integration Guide
 
 ## Overview
 
@@ -45,11 +45,11 @@ const productConfig = {
 For React-based sites (Next.js, Gatsby, etc.):
 
 ```jsx
-import BulkPricingCalculator from './BulkPricingCalculator';
+import BulkCalculator from './BulkCalculator';
 
 function ProductPage({ product }) {
   return (
-    <BulkPricingCalculator 
+    <BulkCalculator 
       product={{
         sku: product.sku,
         name: product.name,
@@ -68,13 +68,13 @@ For Shopify stores, create a custom product template:
 
 1. Add calculator script to theme assets
 2. Create product metafields for:
-   - `bulk_pricing_enabled` (boolean)
+   - `bulk_calculator_enabled` (boolean)
    - `minimum_order_quantity` (number)
    - `freight_cost` (number)
 
 3. Add to product template:
 ```liquid
-{% if product.metafields.custom.bulk_pricing_enabled %}
+{% if product.metafields.custom.bulk_calculator_enabled %}
   <div id="bulk-calculator"></div>
   <script>
     window.bulkProduct = {
@@ -94,7 +94,7 @@ Your backend should provide:
 
 1. **Product pricing endpoint**:
 ```json
-GET /api/products/{sku}/bulk-pricing
+GET /api/products/{sku}/bulk-calculator
 
 Response:
 {
