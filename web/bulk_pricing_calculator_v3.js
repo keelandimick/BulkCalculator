@@ -299,7 +299,6 @@ function calculatePricing() {
     // Retail pricing
     document.getElementById('retailUnitCost').textContent = formatCurrency(productConfig.retailPrice);
     document.getElementById('retailQuantity').textContent = quantity;
-    document.getElementById('retailDiscount').textContent = '0%';
     document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
     document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
     document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
@@ -307,7 +306,6 @@ function calculatePricing() {
     // Bulk pricing
     document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
     document.getElementById('bulkQuantity').textContent = quantity;
-    document.getElementById('bulkDiscount').textContent = `${discount}%`;
     document.getElementById('bulkProductTotal').textContent = formatCurrency(bulkProductTotal);
     document.getElementById('freightCost').textContent = `${formatCurrency(freightCost)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
     document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
@@ -435,14 +433,12 @@ function resetPricingDisplay() {
     // Reset all displays to default
     document.getElementById('retailUnitCost').textContent = '$0';
     document.getElementById('retailQuantity').textContent = '0';
-    document.getElementById('retailDiscount').textContent = '0%';
     document.getElementById('retailProductSubtotal').textContent = '$0';
     document.getElementById('retailShippingTotal').textContent = '$0';
     document.getElementById('retailOrderTotal').textContent = '$0';
     
     document.getElementById('bulkUnitCost').textContent = '$0';
     document.getElementById('bulkQuantity').textContent = '0';
-    document.getElementById('bulkDiscount').textContent = '0%';
     document.getElementById('bulkProductTotal').textContent = '$0';
     document.getElementById('freightCost').textContent = '$0';
     document.getElementById('bulkOrderTotal').textContent = '$0';
