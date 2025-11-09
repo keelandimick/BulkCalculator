@@ -160,10 +160,10 @@
         
         <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
             <h4 style="margin: 0 0 10px 0; color: #1565c0;">Bulk Discount Tiers</h4>
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <span style="padding: 5px 10px; background: white; border-radius: 4px;">1-10 units: <strong>10% off</strong></span>
-                <span style="padding: 5px 10px; background: white; border-radius: 4px;">11-20 units: <strong>20% off</strong></span>
-                <span style="padding: 5px 10px; background: white; border-radius: 4px;">21+ units: <strong>30% off</strong></span>
+            <div style="display: flex; justify-content: center; gap: 30px;">
+                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">1-10 units: <strong>10% off</strong></span>
+                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>20% off</strong></span>
+                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">21+ units: <strong>30% off</strong></span>
             </div>
         </div>
         
@@ -183,13 +183,13 @@
         <div class="price-comparison">
             <div class="price-box retail">
                 <h4>Retail Price</h4>
-                <div class="unit-price" id="retailUnitPrice">$299.99</div>
-                <div class="price-breakdown" id="retailBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">$259.99 + $40 shipping</div>
+                <div class="unit-price" id="retailUnitPrice">$0</div>
+                <div class="price-breakdown" id="retailBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">Select a product</div>
             </div>
             <div class="price-box bulk">
                 <h4>Bulk Price</h4>
-                <div class="unit-price" id="bulkUnitPrice">$254.99</div>
-                <div class="price-breakdown" id="bulkBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">$254.99 (freight not included)</div>
+                <div class="unit-price" id="bulkUnitPrice">$0</div>
+                <div class="price-breakdown" id="bulkBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">Select a product</div>
             </div>
         </div>
         
@@ -251,8 +251,8 @@
             </div>
         </div>
         
-        <div class="savings" id="savingsBox">
-            You save $4,500 (15%) with bulk pricing!
+        <div class="savings" id="savingsBox" style="background: #f5f5f5; color: #666;">
+            Select a product to see pricing comparison
         </div>
         
         <button class="add-to-cart" onclick="submitOrderRequest()">Submit Order Request</button>

@@ -168,6 +168,8 @@ document.addEventListener('DOMContentLoaded', function() {
     addProductSelector();
     
     // Don't select a product by default - user must choose
+    // Clear any default values
+    resetPricingDisplay();
     
     // Set up event listener for quantity
     document.getElementById('quantity').addEventListener('input', calculatePricing);
@@ -261,7 +263,10 @@ function selectProduct(sku) {
 }
 
 function calculatePricing() {
-    if (!productConfig.sku) return;
+    if (!productConfig.sku) {
+        resetPricingDisplay();
+        return;
+    }
     
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
     
@@ -448,9 +453,9 @@ function resetPricingDisplay() {
     document.getElementById('freightCost').textContent = '$0';
     document.getElementById('bulkOrderTotal').textContent = '$0';
     
-    document.getElementById('savingsBox').textContent = 'Enter quantity to see savings';
-    document.getElementById('savingsBox').style.background = '#e3f2fd';
-    document.getElementById('savingsBox').style.color = '#1976d2';
+    document.getElementById('savingsBox').textContent = 'Select a product to see pricing comparison';
+    document.getElementById('savingsBox').style.background = '#f5f5f5';
+    document.getElementById('savingsBox').style.color = '#666';
     
     // Remove unit comparison and break-even if they exist
     const unitComparison = document.getElementById('unitComparison');
