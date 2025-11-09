@@ -246,7 +246,13 @@ async function fetchFreightQuote(destinationZip) {
         });
         
         // Call our proxy server to avoid CORS issues
-        const response = await fetch('http://localhost:3001/api/freight-quote', {
+        // For production, deploy the proxy server and update this URL
+        // For now, fallback to simulation if proxy not available
+        const PROXY_URL = 'http://localhost:3001/api/freight-quote';
+        
+        let response;
+        try {
+            response = await fetch(PROXY_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -260,6 +266,30 @@ async function fetchFreightQuote(destinationZip) {
                 product_name: productConfig.name
             })
         });
+        } catch (fetchError) {
+            // If proxy server is not running, use simulation
+            console.warn('Proxy server not available, using simulated quote');
+            
+            // Simulate a realistic freight quote
+            const baseRate = 3.50; // $ per mile
+            const estimatedMiles = warehouseKey === 'TN' ? 800 : 1200;
+            const weightCharge = Math.ceil(totalWeight / 100) * baseRate * estimatedMiles / 100;
+            const accessorials = 180; // Liftgate + inside delivery
+            const simulatedTotal = weightCharge + accessorials;
+            
+            // Create a simulated response
+            response = {
+                ok: true,
+                json: async () => ({
+                    success: true,
+                    cheapest: {
+                        total_cost: Math.max(simulatedTotal, config.minFreightCost),
+                        carrier_name: 'Simulated Quote',
+                        transit_days: '3-5'
+                    }
+                })
+            };
+        }
         
         if (!response.ok) {
             const error = await response.json();
