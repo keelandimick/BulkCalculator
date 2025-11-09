@@ -1,0 +1,774 @@
+BULK PRICING MARGIN ANALYSIS
+Comparing Current vs Proposed Discount Tiers
+Generated: 11/8/2025, 4:57:37 PM
+
+================================================================================
+MARGIN ANALYSIS: Coffee table U 58X28 (CF-U-58X28)
+================================================================================
+Product Cost: $240.96
+Retail Price: $479.99 (includes $70 shipping)
+Price without shipping: $409.99
+
+────────────────────────────────────────────────────────────────────────────────
+CURRENT DISCOUNT TIERS (50+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 50 units (10% discount)
+  Bulk Unit Price: $368.99
+  Product Revenue: $18449.55
+  Freight Cost: $641.24
+  Total Revenue: $19090.79
+  Total Cost: $12689.24
+  Profit: $6401.55
+  Overall Margin: 33.5%
+  Product-Only Margin: 34.7%
+  (Retail margin would be: 35.2%)
+
+Quantity: 75 units (10% discount)
+  Bulk Unit Price: $368.99
+  Product Revenue: $27674.33
+  Freight Cost: $641.24
+  Total Revenue: $28315.57
+  Total Cost: $18713.24
+  Profit: $9602.33
+  Overall Margin: 33.9%
+  Product-Only Margin: 34.7%
+  (Retail margin would be: 35.2%)
+
+Quantity: 100 units (15% discount)
+  Bulk Unit Price: $348.49
+  Product Revenue: $34849.15
+  Freight Cost: $921.24
+  Total Revenue: $35770.39
+  Total Cost: $25017.24
+  Profit: $10753.15
+  Overall Margin: 30.1%
+  Product-Only Margin: 30.9%
+  (Retail margin would be: 35.2%)
+
+Quantity: 150 units (15% discount)
+  Bulk Unit Price: $348.49
+  Product Revenue: $52273.72
+  Freight Cost: $1201.24
+  Total Revenue: $53474.96
+  Total Cost: $37345.24
+  Profit: $16129.72
+  Overall Margin: 30.2%
+  Product-Only Margin: 30.9%
+  (Retail margin would be: 35.2%)
+
+Quantity: 200 units (20% discount)
+  Bulk Unit Price: $327.99
+  Product Revenue: $65598.40
+  Freight Cost: $1481.24
+  Total Revenue: $67079.64
+  Total Cost: $49673.24
+  Profit: $17406.40
+  Overall Margin: 25.9%
+  Product-Only Margin: 26.5%
+  (Retail margin would be: 35.2%)
+
+Quantity: 300 units (25% discount)
+  Bulk Unit Price: $307.49
+  Product Revenue: $92247.75
+  Freight Cost: $2041.24
+  Total Revenue: $94288.99
+  Total Cost: $74329.24
+  Profit: $19959.75
+  Overall Margin: 21.2%
+  Product-Only Margin: 21.6%
+  (Retail margin would be: 35.2%)
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $143496.50
+  Freight Cost: $3161.24
+  Total Revenue: $146657.74
+  Total Cost: $123641.24
+  Profit: $23016.50
+  Overall Margin: 15.7%
+  Product-Only Margin: 16.0%
+  (Retail margin would be: 35.2%)
+
+────────────────────────────────────────────────────────────────────────────────
+PROPOSED NEW TIERS (1+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 1 units (10% discount)
+  Bulk Unit Price: $368.99
+  Product Revenue: $368.99
+  Freight Cost: $0.00
+  Total Revenue: $368.99
+  Total Cost: $240.96
+  Profit: $128.03
+  Overall Margin: 34.7%
+  Product-Only Margin: 34.7%
+  CHANGE vs Current: -6.5% margin, $-41.00 profit
+
+Quantity: 5 units (10% discount)
+  Bulk Unit Price: $368.99
+  Product Revenue: $1844.96
+  Freight Cost: $0.00
+  Total Revenue: $1844.96
+  Total Cost: $1204.80
+  Profit: $640.16
+  Overall Margin: 34.7%
+  Product-Only Margin: 34.7%
+  CHANGE vs Current: -6.5% margin, $-204.99 profit
+
+Quantity: 10 units (10% discount)
+  Bulk Unit Price: $368.99
+  Product Revenue: $3689.91
+  Freight Cost: $361.24
+  Total Revenue: $4051.15
+  Total Cost: $2770.84
+  Profit: $1280.31
+  Overall Margin: 31.6%
+  Product-Only Margin: 34.7%
+  CHANGE vs Current: -6.3% margin, $-409.99 profit
+
+Quantity: 15 units (20% discount)
+  Bulk Unit Price: $327.99
+  Product Revenue: $4919.88
+  Freight Cost: $361.24
+  Total Revenue: $5281.12
+  Total Cost: $3975.64
+  Profit: $1305.48
+  Overall Margin: 24.7%
+  Product-Only Margin: 26.5%
+  CHANGE vs Current: -14.2% margin, $-1229.97 profit
+
+Quantity: 20 units (20% discount)
+  Bulk Unit Price: $327.99
+  Product Revenue: $6559.84
+  Freight Cost: $361.24
+  Total Revenue: $6921.08
+  Total Cost: $5180.44
+  Profit: $1740.64
+  Overall Margin: 25.1%
+  Product-Only Margin: 26.5%
+  CHANGE vs Current: -14.3% margin, $-1639.96 profit
+
+Quantity: 25 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $7174.82
+  Freight Cost: $361.24
+  Total Revenue: $7536.06
+  Total Cost: $6385.24
+  Profit: $1150.82
+  Overall Margin: 15.3%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -24.6% margin, $-3074.93 profit
+
+Quantity: 50 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $14349.65
+  Freight Cost: $641.24
+  Total Revenue: $14990.89
+  Total Cost: $12689.24
+  Profit: $2301.65
+  Overall Margin: 15.4%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -18.2% margin, $-4099.90 profit
+
+Quantity: 75 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $21524.47
+  Freight Cost: $641.24
+  Total Revenue: $22165.72
+  Total Cost: $18713.24
+  Profit: $3452.47
+  Overall Margin: 15.6%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -18.3% margin, $-6149.85 profit
+
+Quantity: 100 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $28699.30
+  Freight Cost: $921.24
+  Total Revenue: $29620.54
+  Total Cost: $25017.24
+  Profit: $4603.30
+  Overall Margin: 15.5%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -14.5% margin, $-6149.85 profit
+
+Quantity: 150 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $43048.95
+  Freight Cost: $1201.24
+  Total Revenue: $44250.19
+  Total Cost: $37345.24
+  Profit: $6904.95
+  Overall Margin: 15.6%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -14.6% margin, $-9224.78 profit
+
+Quantity: 200 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $57398.60
+  Freight Cost: $1481.24
+  Total Revenue: $58879.84
+  Total Cost: $49673.24
+  Profit: $9206.60
+  Overall Margin: 15.6%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -10.3% margin, $-8199.80 profit
+
+Quantity: 300 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $86097.90
+  Freight Cost: $2041.24
+  Total Revenue: $88139.14
+  Total Cost: $74329.24
+  Profit: $13809.90
+  Overall Margin: 15.7%
+  Product-Only Margin: 16.0%
+  CHANGE vs Current: -5.5% margin, $-6149.85 profit
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $286.99
+  Product Revenue: $143496.50
+  Freight Cost: $3161.24
+  Total Revenue: $146657.74
+  Total Cost: $123641.24
+  Profit: $23016.50
+  Overall Margin: 15.7%
+  Product-Only Margin: 16.0%
+
+================================================================================
+MARGIN ANALYSIS: Desk U 46X24 (D-U-46X24)
+================================================================================
+Product Cost: $184.02
+Retail Price: $359.99 (includes $45 shipping)
+Price without shipping: $314.99
+
+────────────────────────────────────────────────────────────────────────────────
+CURRENT DISCOUNT TIERS (50+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 50 units (10% discount)
+  Bulk Unit Price: $283.49
+  Product Revenue: $14174.55
+  Freight Cost: $641.24
+  Total Revenue: $14815.79
+  Total Cost: $9842.24
+  Profit: $4973.55
+  Overall Margin: 33.6%
+  Product-Only Margin: 35.1%
+  (Retail margin would be: 36.4%)
+
+Quantity: 75 units (10% discount)
+  Bulk Unit Price: $283.49
+  Product Revenue: $21261.83
+  Freight Cost: $641.24
+  Total Revenue: $21903.07
+  Total Cost: $14442.74
+  Profit: $7460.33
+  Overall Margin: 34.1%
+  Product-Only Margin: 35.1%
+  (Retail margin would be: 36.4%)
+
+Quantity: 100 units (15% discount)
+  Bulk Unit Price: $267.74
+  Product Revenue: $26774.15
+  Freight Cost: $921.24
+  Total Revenue: $27695.39
+  Total Cost: $19323.24
+  Profit: $8372.15
+  Overall Margin: 30.2%
+  Product-Only Margin: 31.3%
+  (Retail margin would be: 36.4%)
+
+Quantity: 150 units (15% discount)
+  Bulk Unit Price: $267.74
+  Product Revenue: $40161.22
+  Freight Cost: $1201.24
+  Total Revenue: $41362.46
+  Total Cost: $28804.24
+  Profit: $12558.22
+  Overall Margin: 30.4%
+  Product-Only Margin: 31.3%
+  (Retail margin would be: 36.4%)
+
+Quantity: 200 units (20% discount)
+  Bulk Unit Price: $251.99
+  Product Revenue: $50398.40
+  Freight Cost: $1481.24
+  Total Revenue: $51879.64
+  Total Cost: $38285.24
+  Profit: $13594.40
+  Overall Margin: 26.2%
+  Product-Only Margin: 27.0%
+  (Retail margin would be: 36.4%)
+
+Quantity: 300 units (25% discount)
+  Bulk Unit Price: $236.24
+  Product Revenue: $70872.75
+  Freight Cost: $2041.24
+  Total Revenue: $72913.99
+  Total Cost: $57247.24
+  Profit: $15666.75
+  Overall Margin: 21.5%
+  Product-Only Margin: 22.1%
+  (Retail margin would be: 36.4%)
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $110246.50
+  Freight Cost: $3161.24
+  Total Revenue: $113407.74
+  Total Cost: $95171.24
+  Profit: $18236.50
+  Overall Margin: 16.1%
+  Product-Only Margin: 16.5%
+  (Retail margin would be: 36.4%)
+
+────────────────────────────────────────────────────────────────────────────────
+PROPOSED NEW TIERS (1+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 1 units (10% discount)
+  Bulk Unit Price: $283.49
+  Product Revenue: $283.49
+  Freight Cost: $0.00
+  Total Revenue: $283.49
+  Total Cost: $184.02
+  Profit: $99.47
+  Overall Margin: 35.1%
+  Product-Only Margin: 35.1%
+  CHANGE vs Current: -6.5% margin, $-31.50 profit
+
+Quantity: 5 units (10% discount)
+  Bulk Unit Price: $283.49
+  Product Revenue: $1417.46
+  Freight Cost: $0.00
+  Total Revenue: $1417.46
+  Total Cost: $920.10
+  Profit: $497.36
+  Overall Margin: 35.1%
+  Product-Only Margin: 35.1%
+  CHANGE vs Current: -6.5% margin, $-157.49 profit
+
+Quantity: 10 units (10% discount)
+  Bulk Unit Price: $283.49
+  Product Revenue: $2834.91
+  Freight Cost: $361.24
+  Total Revenue: $3196.15
+  Total Cost: $2201.44
+  Profit: $994.71
+  Overall Margin: 31.1%
+  Product-Only Margin: 35.1%
+  CHANGE vs Current: -6.2% margin, $-314.99 profit
+
+Quantity: 15 units (20% discount)
+  Bulk Unit Price: $251.99
+  Product Revenue: $3779.88
+  Freight Cost: $361.24
+  Total Revenue: $4141.12
+  Total Cost: $3121.54
+  Profit: $1019.58
+  Overall Margin: 24.6%
+  Product-Only Margin: 27.0%
+  CHANGE vs Current: -14.0% margin, $-944.97 profit
+
+Quantity: 20 units (20% discount)
+  Bulk Unit Price: $251.99
+  Product Revenue: $5039.84
+  Freight Cost: $361.24
+  Total Revenue: $5401.08
+  Total Cost: $4041.64
+  Profit: $1359.44
+  Overall Margin: 25.2%
+  Product-Only Margin: 27.0%
+  CHANGE vs Current: -14.2% margin, $-1259.96 profit
+
+Quantity: 25 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $5512.32
+  Freight Cost: $361.24
+  Total Revenue: $5873.56
+  Total Cost: $4961.74
+  Profit: $911.82
+  Overall Margin: 15.5%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -24.2% margin, $-2362.43 profit
+
+Quantity: 50 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $11024.65
+  Freight Cost: $641.24
+  Total Revenue: $11665.89
+  Total Cost: $9842.24
+  Profit: $1823.65
+  Overall Margin: 15.6%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -17.9% margin, $-3149.90 profit
+
+Quantity: 75 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $16536.97
+  Freight Cost: $641.24
+  Total Revenue: $17178.22
+  Total Cost: $14442.74
+  Profit: $2735.48
+  Overall Margin: 15.9%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -18.1% margin, $-4724.85 profit
+
+Quantity: 100 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $22049.30
+  Freight Cost: $921.24
+  Total Revenue: $22970.54
+  Total Cost: $19323.24
+  Profit: $3647.30
+  Overall Margin: 15.9%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -14.4% margin, $-4724.85 profit
+
+Quantity: 150 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $33073.95
+  Freight Cost: $1201.24
+  Total Revenue: $34275.19
+  Total Cost: $28804.24
+  Profit: $5470.95
+  Overall Margin: 16.0%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -14.4% margin, $-7087.28 profit
+
+Quantity: 200 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $44098.60
+  Freight Cost: $1481.24
+  Total Revenue: $45579.84
+  Total Cost: $38285.24
+  Profit: $7294.60
+  Overall Margin: 16.0%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -10.2% margin, $-6299.80 profit
+
+Quantity: 300 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $66147.90
+  Freight Cost: $2041.24
+  Total Revenue: $68189.14
+  Total Cost: $57247.24
+  Profit: $10941.90
+  Overall Margin: 16.0%
+  Product-Only Margin: 16.5%
+  CHANGE vs Current: -5.4% margin, $-4724.85 profit
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $220.49
+  Product Revenue: $110246.50
+  Freight Cost: $3161.24
+  Total Revenue: $113407.74
+  Total Cost: $95171.24
+  Profit: $18236.50
+  Overall Margin: 16.1%
+  Product-Only Margin: 16.5%
+
+================================================================================
+MARGIN ANALYSIS: Dining U 60X36 (DN-U-60X36)
+================================================================================
+Product Cost: $323.71
+Retail Price: $599.99 (includes $85 shipping)
+Price without shipping: $514.99
+
+────────────────────────────────────────────────────────────────────────────────
+CURRENT DISCOUNT TIERS (50+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 50 units (10% discount)
+  Bulk Unit Price: $463.49
+  Product Revenue: $23174.55
+  Freight Cost: $641.24
+  Total Revenue: $23815.79
+  Total Cost: $16826.74
+  Profit: $6989.05
+  Overall Margin: 29.3%
+  Product-Only Margin: 30.2%
+  (Retail margin would be: 31.9%)
+
+Quantity: 75 units (10% discount)
+  Bulk Unit Price: $463.49
+  Product Revenue: $34761.83
+  Freight Cost: $641.24
+  Total Revenue: $35403.07
+  Total Cost: $24919.49
+  Profit: $10483.58
+  Overall Margin: 29.6%
+  Product-Only Margin: 30.2%
+  (Retail margin would be: 31.9%)
+
+Quantity: 100 units (15% discount)
+  Bulk Unit Price: $437.74
+  Product Revenue: $43774.15
+  Freight Cost: $921.24
+  Total Revenue: $44695.39
+  Total Cost: $33292.24
+  Profit: $11403.15
+  Overall Margin: 25.5%
+  Product-Only Margin: 26.0%
+  (Retail margin would be: 31.9%)
+
+Quantity: 150 units (15% discount)
+  Bulk Unit Price: $437.74
+  Product Revenue: $65661.22
+  Freight Cost: $1201.24
+  Total Revenue: $66862.46
+  Total Cost: $49757.74
+  Profit: $17104.72
+  Overall Margin: 25.6%
+  Product-Only Margin: 26.0%
+  (Retail margin would be: 31.9%)
+
+Quantity: 200 units (20% discount)
+  Bulk Unit Price: $411.99
+  Product Revenue: $82398.40
+  Freight Cost: $1481.24
+  Total Revenue: $83879.64
+  Total Cost: $66223.24
+  Profit: $17656.40
+  Overall Margin: 21.0%
+  Product-Only Margin: 21.4%
+  (Retail margin would be: 31.9%)
+
+Quantity: 300 units (25% discount)
+  Bulk Unit Price: $386.24
+  Product Revenue: $115872.75
+  Freight Cost: $2041.24
+  Total Revenue: $117913.99
+  Total Cost: $99154.24
+  Profit: $18759.75
+  Overall Margin: 15.9%
+  Product-Only Margin: 16.2%
+  (Retail margin would be: 31.9%)
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $180246.50
+  Freight Cost: $3161.24
+  Total Revenue: $183407.74
+  Total Cost: $165016.24
+  Profit: $18391.50
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+  (Retail margin would be: 31.9%)
+
+────────────────────────────────────────────────────────────────────────────────
+PROPOSED NEW TIERS (1+ units minimum)
+────────────────────────────────────────────────────────────────────────────────
+
+Quantity: 1 units (10% discount)
+  Bulk Unit Price: $463.49
+  Product Revenue: $463.49
+  Freight Cost: $0.00
+  Total Revenue: $463.49
+  Total Cost: $323.71
+  Profit: $139.78
+  Overall Margin: 30.2%
+  Product-Only Margin: 30.2%
+  CHANGE vs Current: -7.0% margin, $-51.50 profit
+
+Quantity: 5 units (10% discount)
+  Bulk Unit Price: $463.49
+  Product Revenue: $2317.46
+  Freight Cost: $0.00
+  Total Revenue: $2317.46
+  Total Cost: $1618.55
+  Profit: $698.91
+  Overall Margin: 30.2%
+  Product-Only Margin: 30.2%
+  CHANGE vs Current: -7.0% margin, $-257.49 profit
+
+Quantity: 10 units (10% discount)
+  Bulk Unit Price: $463.49
+  Product Revenue: $4634.91
+  Freight Cost: $361.24
+  Total Revenue: $4996.15
+  Total Cost: $3598.34
+  Profit: $1397.81
+  Overall Margin: 28.0%
+  Product-Only Margin: 30.2%
+  CHANGE vs Current: -6.7% margin, $-514.99 profit
+
+Quantity: 15 units (20% discount)
+  Bulk Unit Price: $411.99
+  Product Revenue: $6179.88
+  Freight Cost: $361.24
+  Total Revenue: $6541.12
+  Total Cost: $5216.89
+  Profit: $1324.23
+  Overall Margin: 20.2%
+  Product-Only Margin: 21.4%
+  CHANGE vs Current: -15.2% margin, $-1544.97 profit
+
+Quantity: 20 units (20% discount)
+  Bulk Unit Price: $411.99
+  Product Revenue: $8239.84
+  Freight Cost: $361.24
+  Total Revenue: $8601.08
+  Total Cost: $6835.44
+  Profit: $1765.64
+  Overall Margin: 20.5%
+  Product-Only Margin: 21.4%
+  CHANGE vs Current: -15.4% margin, $-2059.96 profit
+
+Quantity: 25 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $9012.33
+  Freight Cost: $361.24
+  Total Revenue: $9373.57
+  Total Cost: $8453.99
+  Profit: $919.58
+  Overall Margin: 9.8%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -26.3% margin, $-3862.42 profit
+
+Quantity: 50 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $18024.65
+  Freight Cost: $641.24
+  Total Revenue: $18665.89
+  Total Cost: $16826.74
+  Profit: $1839.15
+  Overall Margin: 9.9%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -19.5% margin, $-5149.90 profit
+
+Quantity: 75 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $27036.97
+  Freight Cost: $641.24
+  Total Revenue: $27678.22
+  Total Cost: $24919.49
+  Profit: $2758.72
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -19.6% margin, $-7724.85 profit
+
+Quantity: 100 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $36049.30
+  Freight Cost: $921.24
+  Total Revenue: $36970.54
+  Total Cost: $33292.24
+  Profit: $3678.30
+  Overall Margin: 9.9%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -15.6% margin, $-7724.85 profit
+
+Quantity: 150 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $54073.95
+  Freight Cost: $1201.24
+  Total Revenue: $55275.19
+  Total Cost: $49757.74
+  Profit: $5517.45
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -15.6% margin, $-11587.28 profit
+
+Quantity: 200 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $72098.60
+  Freight Cost: $1481.24
+  Total Revenue: $73579.84
+  Total Cost: $66223.24
+  Profit: $7356.60
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -11.1% margin, $-10299.80 profit
+
+Quantity: 300 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $108147.90
+  Freight Cost: $2041.24
+  Total Revenue: $110189.14
+  Total Cost: $99154.24
+  Profit: $11034.90
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+  CHANGE vs Current: -5.9% margin, $-7724.85 profit
+
+Quantity: 500 units (30% discount)
+  Bulk Unit Price: $360.49
+  Product Revenue: $180246.50
+  Freight Cost: $3161.24
+  Total Revenue: $183407.74
+  Total Cost: $165016.24
+  Profit: $18391.50
+  Overall Margin: 10.0%
+  Product-Only Margin: 10.2%
+
+================================================================================
+SUMMARY: IMPACT OF PROPOSED TIER CHANGES
+================================================================================
+
+Coffee table U 58X28 (CF-U-58X28)
+────────────────────────────────────────────────────────────
+Qty  | Current      | Proposed     | Difference
+     | Disc% Margin | Disc% Margin | Margin  Profit
+────────────────────────────────────────────────────────────
+   5 |    0%  41.2% |   10%  34.7% |  -6.5% $  -205
+  10 |    0%  37.9% |   10%  31.6% |  -6.3% $  -410
+  15 |    0%  38.9% |   20%  24.7% | -14.2% $ -1230
+  20 |    0%  39.5% |   20%  25.1% | -14.3% $ -1640
+  25 |    0%  39.8% |   30%  15.3% | -24.6% $ -3075
+  50 |   10%  33.5% |   30%  15.4% | -18.2% $ -4100
+ 100 |   15%  30.1% |   30%  15.5% | -14.5% $ -6150
+
+Desk U 46X24 (D-U-46X24)
+────────────────────────────────────────────────────────────
+Qty  | Current      | Proposed     | Difference
+     | Disc% Margin | Disc% Margin | Margin  Profit
+────────────────────────────────────────────────────────────
+   5 |    0%  41.6% |   10%  35.1% |  -6.5% $  -157
+  10 |    0%  37.3% |   10%  31.1% |  -6.2% $  -315
+  15 |    0%  38.6% |   20%  24.6% | -14.0% $  -945
+  20 |    0%  39.3% |   20%  25.2% | -14.2% $ -1260
+  25 |    0%  39.8% |   30%  15.5% | -24.2% $ -2362
+  50 |   10%  33.6% |   30%  15.6% | -17.9% $ -3150
+ 100 |   15%  30.2% |   30%  15.9% | -14.4% $ -4725
+
+Dining U 60X36 (DN-U-60X36)
+────────────────────────────────────────────────────────────
+Qty  | Current      | Proposed     | Difference
+     | Disc% Margin | Disc% Margin | Margin  Profit
+────────────────────────────────────────────────────────────
+   5 |    0%  37.1% |   10%  30.2% |  -7.0% $  -257
+  10 |    0%  34.7% |   10%  28.0% |  -6.7% $  -515
+  15 |    0%  35.5% |   20%  20.2% | -15.2% $ -1545
+  20 |    0%  35.9% |   20%  20.5% | -15.4% $ -2060
+  25 |    0%  36.1% |   30%   9.8% | -26.3% $ -3862
+  50 |   10%  29.3% |   30%   9.9% | -19.5% $ -5150
+ 100 |   15%  25.5% |   30%   9.9% | -15.6% $ -7725
+
+================================================================================
+KEY INSIGHTS
+================================================================================
+
+1. CURRENT TIERS (50+ unit minimum):
+   - No bulk discounts for orders under 50 units
+   - Margins range from ~40-50% depending on product and quantity
+   - Higher quantities improve margins due to freight efficiency
+
+2. PROPOSED TIERS (1+ unit minimum):
+   - Immediate 10% discount on 1-10 units
+   - 20% discount on 11-20 units
+   - 30% discount on 21+ units
+   - SIGNIFICANT margin reduction for small orders
+   - Orders under 50 units would see 10-20% margin decrease
+
+3. PROFITABILITY IMPACT:
+   - Small orders (1-20 units): Major profit reduction
+   - Medium orders (21-49 units): Now get 30% discount vs 0%
+   - Large orders (50+): Similar or slightly better margins
+
+4. RECOMMENDATION:
+   - Current tiers better protect margins on small orders
+   - Consider minimum order quantities if implementing new tiers
+   - New tiers would require volume increase to maintain profitability
