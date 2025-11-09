@@ -110,11 +110,9 @@ const config = {
     
     // Tiered pricing structure (discounts)
     pricingTiers: [
-        { minQty: 50, maxQty: 99, discount: 10 },
-        { minQty: 100, maxQty: 199, discount: 15 },
-        { minQty: 200, maxQty: 299, discount: 20 },
-        { minQty: 300, maxQty: 499, discount: 25 },
-        { minQty: 500, maxQty: null, discount: 30 }
+        { minQty: 1, maxQty: 10, discount: 10 },
+        { minQty: 11, maxQty: 20, discount: 20 },
+        { minQty: 21, maxQty: null, discount: 30 }
     ]
 };
 
@@ -264,7 +262,7 @@ function calculatePricing() {
     const retailTotal = retailUnitPrice * quantity;
     
     // Calculate bulk pricing with discounts (minimum 10% for wholesale)
-    let discount = 10; // Start with default 10% discount
+    let discount = 0; // No default discount, use tiers
     for (const tier of config.pricingTiers) {
         if (quantity >= tier.minQty && (tier.maxQty === null || quantity <= tier.maxQty)) {
             discount = tier.discount;
@@ -348,7 +346,7 @@ function calculatePricing() {
         const retailTotalTest = productConfig.retailPrice * q;
         
         // Calculate bulk total with discount
-        let discountTest = 10; // Default 10% discount
+        let discountTest = 0; // No default discount, use tiers
         for (const tier of config.pricingTiers) {
             if (q >= tier.minQty && (tier.maxQty === null || q <= tier.maxQty)) {
                 discountTest = tier.discount;
@@ -388,7 +386,7 @@ function addToCart() {
     }
     
     // Calculate all values
-    let discount = 10; // Start with default 10% discount
+    let discount = 0; // No default discount, use tiers
     for (const tier of config.pricingTiers) {
         if (quantity >= tier.minQty && (tier.maxQty === null || quantity <= tier.maxQty)) {
             discount = tier.discount;
