@@ -257,11 +257,7 @@ function selectProduct(sku) {
     // Update display
     document.getElementById('productName').textContent = product.name;
     
-    // Update retail unit price display
-    const retailPriceElement = document.getElementById('retailUnitPrice');
-    if (retailPriceElement) {
-        retailPriceElement.textContent = formatCurrency(product.retailPrice);
-    }
+    // No longer updating removed price display elements
     
     // Recalculate pricing
     calculatePricing();
@@ -301,8 +297,6 @@ function calculatePricing() {
     document.getElementById('quantity').textContent = quantity;
     
     // Retail pricing
-    document.getElementById('retailUnitPrice').textContent = formatCurrency(productConfig.retailPrice);
-    document.getElementById('retailBreakdown').textContent = `${formatCurrency(retailPriceWithoutShipping).replace('$', '$')} + ${formatCurrency(productConfig.smallParcelShipping).replace('$', '$')} shipping`;
     document.getElementById('retailUnitCost').textContent = formatCurrency(productConfig.retailPrice);
     document.getElementById('retailQuantity').textContent = quantity;
     document.getElementById('retailDiscount').textContent = '0%';
@@ -311,11 +305,6 @@ function calculatePricing() {
     document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
     
     // Bulk pricing
-    document.getElementById('bulkUnitPrice').textContent = formatCurrency(bulkUnitPrice);
-    document.getElementById('bulkBreakdown').textContent = 
-        palletsNeeded === 1 
-            ? `$${bulkUnitPrice.toFixed(2)} (freight not included)`
-            : `$${bulkUnitPrice.toFixed(2)} (${palletsNeeded} pallets needed)`;
     document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
     document.getElementById('bulkQuantity').textContent = quantity;
     document.getElementById('bulkDiscount').textContent = `${discount}%`;
