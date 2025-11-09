@@ -1,3 +1,8 @@
+// Helper function to format currency with commas
+function formatCurrency(amount) {
+    return '$' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 // Product categories
 const productCategories = {
     'Benches': ['B-DN-46X14', 'B-DN-58X14'],
@@ -255,7 +260,7 @@ function selectProduct(sku) {
     // Update retail unit price display
     const retailPriceElement = document.getElementById('retailUnitPrice');
     if (retailPriceElement) {
-        retailPriceElement.textContent = `$${product.retailPrice.toFixed(2)}`;
+        retailPriceElement.textContent = formatCurrency(product.retailPrice);
     }
     
     // Recalculate pricing
@@ -296,27 +301,27 @@ function calculatePricing() {
     document.getElementById('quantity').textContent = quantity;
     
     // Retail pricing
-    document.getElementById('retailUnitPrice').textContent = `$${productConfig.retailPrice.toFixed(2)}`;
-    document.getElementById('retailBreakdown').textContent = `$${retailPriceWithoutShipping.toFixed(2)} + $${productConfig.smallParcelShipping.toFixed(2)} shipping`;
-    document.getElementById('retailUnitCost').textContent = `$${productConfig.retailPrice.toFixed(2)}`;
+    document.getElementById('retailUnitPrice').textContent = formatCurrency(productConfig.retailPrice);
+    document.getElementById('retailBreakdown').textContent = `${formatCurrency(retailPriceWithoutShipping).replace('$', '$')} + ${formatCurrency(productConfig.smallParcelShipping).replace('$', '$')} shipping`;
+    document.getElementById('retailUnitCost').textContent = formatCurrency(productConfig.retailPrice);
     document.getElementById('retailQuantity').textContent = quantity;
     document.getElementById('retailDiscount').textContent = '0%';
-    document.getElementById('retailProductSubtotal').textContent = `$${retailProductTotal.toFixed(2)}`;
-    document.getElementById('retailShippingTotal').textContent = `$${retailShippingTotal.toFixed(2)}`;
-    document.getElementById('retailOrderTotal').textContent = `$${(retailProductTotal + retailShippingTotal).toFixed(2)}`;
+    document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
+    document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
+    document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
     
     // Bulk pricing
-    document.getElementById('bulkUnitPrice').textContent = `$${bulkUnitPrice.toFixed(2)}`;
+    document.getElementById('bulkUnitPrice').textContent = formatCurrency(bulkUnitPrice);
     document.getElementById('bulkBreakdown').textContent = 
         palletsNeeded === 1 
             ? `$${bulkUnitPrice.toFixed(2)} (freight not included)`
             : `$${bulkUnitPrice.toFixed(2)} (${palletsNeeded} pallets needed)`;
-    document.getElementById('bulkUnitCost').textContent = `$${bulkUnitPrice.toFixed(2)}`;
+    document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
     document.getElementById('bulkQuantity').textContent = quantity;
     document.getElementById('bulkDiscount').textContent = `${discount}%`;
-    document.getElementById('bulkProductTotal').textContent = `$${bulkProductTotal.toFixed(2)}`;
-    document.getElementById('freightCost').textContent = `$${freightCost.toFixed(2)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
-    document.getElementById('bulkOrderTotal').textContent = `$${(bulkProductTotal + freightCost).toFixed(2)}`;
+    document.getElementById('bulkProductTotal').textContent = formatCurrency(bulkProductTotal);
+    document.getElementById('freightCost').textContent = `${formatCurrency(freightCost)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
+    document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
     
     // Calculate totals for comparison
     const retailTotal = retailProductTotal + retailShippingTotal;
@@ -328,7 +333,7 @@ function calculatePricing() {
     const savingsPercent = ((savings / retailTotal) * 100).toFixed(0);
     
     if (savings > 0) {
-        savingsBox.textContent = `You save $${savings.toFixed(2)} (${savingsPercent}%) with bulk pricing!`;
+        savingsBox.textContent = `You save ${formatCurrency(savings).replace('$', '$')} (${savingsPercent}%) with bulk pricing!`;
         savingsBox.style.background = '#4caf50';
         savingsBox.style.color = 'white';
     } else {

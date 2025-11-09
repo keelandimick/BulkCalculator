@@ -158,12 +158,12 @@
         </div>
         <h2>Bulk Order Pricing Comparison</h2>
         
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+        <div style="background: #e3f2fd; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
             <h4 style="margin: 0 0 10px 0; color: #1565c0;">Bulk Discount Tiers</h4>
             <div style="display: flex; justify-content: center; gap: 30px;">
-                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">1-10 units: <strong>10% off</strong></span>
-                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>20% off</strong></span>
-                <span style="padding: 5px 10px; background: white; border-radius: 4px; white-space: nowrap;">21+ units: <strong>30% off</strong></span>
+                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">1-10 units: <strong>10% off</strong></span>
+                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>20% off</strong></span>
+                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">21+ units: <strong>30% off</strong></span>
             </div>
         </div>
         
@@ -180,22 +180,9 @@
             <input type="number" id="quantity" value="1" min="1" step="1">
         </div>
         
-        <div class="price-comparison">
-            <div class="price-box retail">
-                <h4>Retail Price</h4>
-                <div class="unit-price" id="retailUnitPrice">$0</div>
-                <div class="price-breakdown" id="retailBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">Select a product</div>
-            </div>
-            <div class="price-box bulk">
-                <h4>Bulk Price</h4>
-                <div class="unit-price" id="bulkUnitPrice">$0</div>
-                <div class="price-breakdown" id="bulkBreakdown" style="font-size: 14px; color: #666; margin: 5px 0;">Select a product</div>
-            </div>
-        </div>
-        
         <div class="order-summaries" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
             <div class="pricing-breakdown" style="background: #ffebee;">
-                <h4 style="margin: 0 0 15px 0; color: #d32f2f;">Retail Order Summary</h4>
+                <h4 style="margin: 0 0 15px 0; color: #d32f2f;">Normal Order Summary</h4>
                 <div class="pricing-row">
                     <span>Unit Cost:</span>
                     <span id="retailUnitCost">$0</span>
@@ -203,10 +190,6 @@
                 <div class="pricing-row">
                     <span>Quantity:</span>
                     <span id="retailQuantity">0</span>
-                </div>
-                <div class="pricing-row">
-                    <span>Discount:</span>
-                    <span id="retailDiscount">0%</span>
                 </div>
                 <div class="pricing-row">
                     <span>Product Subtotal:</span>
@@ -231,10 +214,6 @@
                 <div class="pricing-row">
                     <span>Quantity:</span>
                     <span id="bulkQuantity">0</span>
-                </div>
-                <div class="pricing-row">
-                    <span>Discount:</span>
-                    <span id="bulkDiscount">0%</span>
                 </div>
                 <div class="pricing-row">
                     <span>Product Subtotal:</span>
