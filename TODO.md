@@ -1,5 +1,31 @@
 # Bulk Calculator - Future Enhancements TODO
 
+## IMMEDIATE PRIORITY - Deploy Freight API
+
+### Deploy Proxy Server (Required for Real Quotes)
+- [ ] Choose deployment platform:
+  - Vercel (recommended - free, easy)
+  - Render.com (free tier available)
+  - Railway (simple deployment)
+- [ ] Deploy the `/server` folder
+- [ ] Get production URL (e.g., https://your-app.vercel.app)
+- [ ] Update PROXY_URL in bulk_pricing_calculator_v3.js
+- [ ] Test real FreightView quotes in production
+- [ ] Remove "Simulated Quote" fallback once confirmed working
+
+### Deployment Commands:
+```bash
+# For Vercel:
+cd server
+npm install -g vercel
+vercel
+
+# For Railway:
+npm install -g @railway/cli
+railway login
+railway up
+```
+
 ## 1. Add Product Catalog
 - [ ] Create a viewable product catalog page/section
 - [ ] Include all products with SKUs, names, and prices
@@ -35,14 +61,29 @@
   - Apple Mail: Current `mailto:` method
 - [ ] Remember user's preference for future submissions
 
+## Completed Features ✅
+- [x] FreightView API integration (OAuth2 authentication)
+- [x] Real-time LTL freight quotes with carrier names
+- [x] Automatic warehouse selection (UT/TN) based on destination zip
+- [x] Updated discount tiers: 1-10 (10%), 11-20 (15%), 21+ (20%)
+- [x] Removed estimated quotes - real quotes only
+- [x] Added actual component weights for accurate freight calculation
+- [x] Created Node.js proxy server for API calls
+- [x] CORS handling with fallback to simulation
+- [x] Carrier name display (FedEx Freight, XPO, etc.)
+- [x] Transit time display in quotes
+
 ## Technical Notes
+- FreightView credentials stored in .env (git-ignored)
+- Proxy server required due to CORS restrictions
 - All images should be optimized for web (compressed, proper dimensions)
 - Consider lazy loading for product images
 - Email client preference could be stored in localStorage
 - Catalog PDF should be hosted on GitHub or company website
 
 ## Priority Order
-1. Product images (biggest visual impact)
-2. Email client selection (improves user experience)
-3. Transparency blurb (builds trust)
-4. Catalog feature (nice to have)
+1. **Deploy proxy server** (critical for real freight quotes)
+2. Product images (biggest visual impact)
+3. Email client selection (improves user experience)
+4. Transparency blurb (builds trust)
+5. Catalog feature (nice to have)
