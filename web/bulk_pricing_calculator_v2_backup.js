@@ -1,17 +1,3 @@
-// Product categories
-const productCategories = {
-    'Benches': ['B-DN-46X14', 'B-DN-58X14'],
-    'Coffee Tables': ['CF-U-36X22', 'CF-U-36X22-DRAWER', 'CF-U-46X24', 'CF-U-46X24-DRAWER', 'CF-U-58X28', 'CF-U-58X28-DRAWER'],
-    'Console Tables': ['CN-U-46X14', 'CN-U-58X14'],
-    'Desks': ['D-HP-36X22', 'D-HP-36X22-DRAWER', 'D-HP-46X24', 'D-HP-46X24-DRAWER', 'D-HP-58X28', 'D-HP-58X28-DRAWER',
-             'D-SSB-46X24', 'D-SSB-46X24-DRAWER', 'D-SSB-58X28', 'D-SSB-58X28-DRAWER',
-             'D-SSW-46X24', 'D-SSW-46X24-DRAWER', 'D-SSW-58X28', 'D-SSW-58X28-DRAWER',
-             'D-U-36X22', 'D-U-36X22-DRAWER', 'D-U-46X24', 'D-U-46X24-DRAWER', 'D-U-58X28', 'D-U-58X28-DRAWER'],
-    'Dining Tables': ['DN-U-48X36', 'DN-U-60X36', 'DN-U-72X36'],
-    'Side Tables': ['END-TABLE', 'C-TABLE'],
-    'Accessories': ['MONITOR-STAND-BK']
-};
-
 // Product catalog with names
 const productCatalog = {
     'B-DN-46X14': { name: 'Bench DN 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00 },
@@ -175,7 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add product selector to the page
     addProductSelector();
     
-    // Don't select a product by default - user must choose
+    // Set first product as default
+    const firstSku = Object.keys(productCatalog)[0];
+    selectProduct(firstSku);
     
     // Set up event listener for quantity
     document.getElementById('quantity').addEventListener('input', calculatePricing);
@@ -185,20 +173,14 @@ function addProductSelector() {
     // Find the product info div
     const productInfo = document.querySelector('.product-info');
     
-    // Create two-dropdown selector HTML
+    // Create selector HTML
     const selectorHTML = `
         <div style="margin-bottom: 15px;">
-            <label for="categorySelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product Type:</label>
-            <select id="categorySelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; margin-bottom: 15px;">
-                <option value="">-- Select Category --</option>
-                ${Object.keys(productCategories).map(category => 
-                    `<option value="${category}">${category}</option>`
+            <label for="productSelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product:</label>
+            <select id="productSelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                ${Object.entries(productCatalog).map(([sku, product]) => 
+                    `<option value="${sku}">${product.name}</option>`
                 ).join('')}
-            </select>
-            
-            <label for="productSelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product Variation:</label>
-            <select id="productSelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;" disabled>
-                <option value="">-- First select a product type --</option>
             </select>
         </div>
     `;
@@ -206,40 +188,10 @@ function addProductSelector() {
     // Insert at the beginning of product info
     productInfo.insertAdjacentHTML('afterbegin', selectorHTML);
     
-    // Add category change event listener
-    document.getElementById('categorySelector').addEventListener('change', function(e) {
-        updateProductDropdown(e.target.value);
-    });
-    
-    // Add product change event listener
+    // Add change event listener
     document.getElementById('productSelector').addEventListener('change', function(e) {
-        if (e.target.value) {
-            selectProduct(e.target.value);
-        }
+        selectProduct(e.target.value);
     });
-}
-
-function updateProductDropdown(category) {
-    const productSelect = document.getElementById('productSelector');
-    
-    if (!category) {
-        productSelect.disabled = true;
-        productSelect.innerHTML = '<option value="">-- First select a product type --</option>';
-        return;
-    }
-    
-    // Get products for this category
-    const productSkus = productCategories[category];
-    
-    // Enable dropdown and populate with products
-    productSelect.disabled = false;
-    productSelect.innerHTML = `
-        <option value="">-- Select a ${category.slice(0, -1)} --</option>
-        ${productSkus.map(sku => {
-            const product = productCatalog[sku];
-            return `<option value="${sku}">${product.name}</option>`;
-        }).join('')}
-    `;
 }
 
 function selectProduct(sku) {
