@@ -57,20 +57,43 @@ const productCatalog = {
     'MONITOR-STAND-BK': { name: 'Monitor Stand Black', retailPrice: 119.99, productCost: 65.33, smallParcelShipping: 20.00 }
 };
 
-// Component data with dimensions (keeping original numbers but treating as arbitrary units)
+// Component data with actual volumes from pallet data and weights
 const componentData = {
-    '46X14': { unitsPerPallet: 36, volume: 38530 },
-    '58X14': { unitsPerPallet: 36, volume: 47935 },
-    '36X22': { unitsPerPallet: 36, volume: 45251 },
-    '46X24': { unitsPerPallet: 18, volume: 61380 },
-    '58X28': { unitsPerPallet: 18, volume: 90376 },
-    '48X36': { unitsPerPallet: 18, volume: 91936 },
-    '60X36': { unitsPerPallet: 18, volume: 113365 },
-    '72X36': { unitsPerPallet: 18, volume: 133066 },
-    'END-TABLE': { unitsPerPallet: 48, volume: 15625 },
-    'C-TABLE': { unitsPerPallet: 40, volume: 20250 },
-    'MONITOR-STAND-BK': { unitsPerPallet: 60, volume: 8000 },
-    'DRAWER': { unitsPerPallet: 36, volume: 12000 }  // Drawer component
+    // Top/surface components
+    '46X14': { unitsPerPallet: 36, volume: 38530, palletVolume: 1387094, weight: 20.2 },
+    '58X14': { unitsPerPallet: 36, volume: 47935, palletVolume: 1725676, weight: 26.7 },
+    '36X22': { unitsPerPallet: 36, volume: 45251, palletVolume: 1629029, weight: 26.65 },
+    '46X24': { unitsPerPallet: 18, volume: 61380, palletVolume: 1104837, weight: 35.75 },
+    '58X28': { unitsPerPallet: 18, volume: 90376, palletVolume: 1626768, weight: 54 },
+    '48X36': { unitsPerPallet: 18, volume: 91936, palletVolume: 1654853, weight: 57.6 },
+    '60X36': { unitsPerPallet: 18, volume: 113365, palletVolume: 2040570, weight: 78 },
+    '72X36': { unitsPerPallet: 18, volume: 133066, palletVolume: 2395181, weight: 80 },
+    
+    // Leg/base components
+    'B-U': { unitsPerPallet: 63, volume: 27863, palletVolume: 1755400, weight: 12.31 },
+    'CF-U': { unitsPerPallet: 42, volume: 45139, palletVolume: 1895832, weight: 16.91 },
+    'CN-U': { unitsPerPallet: 42, volume: 43843, palletVolume: 1841400, weight: 14.67 },
+    'D-HP': { unitsPerPallet: 36, volume: 62766, palletVolume: 2259564, weight: 24 },
+    'D-SSB': { unitsPerPallet: 21, volume: 75900, palletVolume: 1593900, weight: 49 },
+    'D-SSW': { unitsPerPallet: 21, volume: 75900, palletVolume: 1593900, weight: 48 },
+    'D-U': { unitsPerPallet: 28, volume: 77005, palletVolume: 2156129, weight: 21.67 },
+    'B-DN': { unitsPerPallet: 63, volume: 28487, palletVolume: 1794700, weight: 10.925 },
+    'DN-U': { unitsPerPallet: 14, volume: 118162, palletVolume: 1654268, weight: 31.4 },
+    
+    // Complete products and accessories
+    'C-TABLE': { unitsPerPallet: 12, volume: 144040, palletVolume: 1728480, weight: 14.575 },
+    'DRAWER': { unitsPerPallet: 54, volume: 37945, palletVolume: 2049024, weight: 8.74 },
+    'END-TABLE': { unitsPerPallet: 60, volume: 30470, palletVolume: 1828200, weight: 15.695 },
+    'MONITOR-STAND-BK': { unitsPerPallet: 32, volume: 55082, palletVolume: 1762625, weight: 10.95 }
+};
+
+// Average pallet volume for freight calculation (cubic cm)
+const AVERAGE_PALLET_VOLUME = 1800000;
+
+// Warehouse locations
+const warehouses = {
+    'UT': { zip: '84116', city: 'Salt Lake City', state: 'UT', lat: 40.7608, lng: -111.8910 },
+    'TN': { zip: '37874', city: 'Sweetwater', state: 'TN', lat: 35.6012, lng: -84.4611 }
 };
 
 // Map SKUs to their components
@@ -115,55 +138,216 @@ const skuComponents = {
 
 // Configuration
 const config = {
-    baseLtlFreight: 361.24,  // Minimum LTL freight cost
-    freightRatePerCubicFoot: 8.00,  // $ per cubic foot (adjust based on your rates)
-    minCubicFeet: 45,  // Minimum billable cubic feet (roughly one pallet)
+    minFreightCost: 250,  // Minimum freight charge
     
     // Tiered pricing structure (discounts)
     pricingTiers: [
         { minQty: 1, maxQty: 10, discount: 10 },
-        { minQty: 11, maxQty: 20, discount: 20 },
-        { minQty: 21, maxQty: null, discount: 30 }
+        { minQty: 11, maxQty: 20, discount: 15 },
+        { minQty: 21, maxQty: null, discount: 20 }
     ]
 };
 
 // Current product configuration
 let productConfig = {};
 
-// Get units per pallet for a parent SKU
-function getUnitsPerPallet(sku) {
+
+// Calculate total weight for shipment
+function calculateTotalWeight(sku, quantity) {
     const components = skuComponents[sku];
-    if (!components) return 12;
+    if (!components) return 0;
     
-    // Find the limiting component (lowest units per pallet)
-    let minUnits = Infinity;
+    let totalWeight = 0;
     for (const component of components) {
         const componentInfo = componentData[component];
-        if (componentInfo && componentInfo.unitsPerPallet < minUnits) {
-            minUnits = componentInfo.unitsPerPallet;
+        if (componentInfo && componentInfo.weight) {
+            totalWeight += componentInfo.weight * quantity;
         }
     }
     
-    return minUnits === Infinity ? 12 : minUnits;
+    return totalWeight;
 }
 
-// Calculate freight cost based on quantity and pallet capacity
-function calculateFreightCost(sku, quantity) {
-    const unitsPerPallet = getUnitsPerPallet(sku);
-    const palletsNeeded = Math.ceil(quantity / unitsPerPallet);
+// Get closest warehouse based on zip code (simplified distance calculation)
+function getClosestWarehouse(destinationZip) {
+    // This is a simplified version - in production you'd use a proper geocoding API
+    // For now, we'll use a basic zip code prefix approach
+    // Eastern zips (0-5) go to TN, Western zips (6-9) go to UT
+    const firstDigit = destinationZip.toString().charAt(0);
     
-    // Base cost for first pallet
-    let freightCost = config.baseLtlFreight;
+    // More accurate regional mapping
+    const zipPrefix = destinationZip.toString().substring(0, 3);
     
-    // Add cost for additional pallets (slightly less per pallet)
-    if (palletsNeeded > 1) {
-        freightCost += (palletsNeeded - 1) * 280; // $280 for each additional pallet
+    // TN warehouse serves: Eastern and Southern states
+    // UT warehouse serves: Western and Northwestern states
+    const tnRegions = [
+        // Northeast
+        '010', '011', '012', '013', '014', '015', '016', '017', '018', '019', // MA
+        '020', '021', '022', '023', '024', '025', '026', '027', '028', '029', // MA/RI
+        '030', '031', '032', '033', '034', '035', '036', '037', '038', '039', // NH
+        '040', '041', '042', '043', '044', '045', '046', '047', '048', '049', // ME
+        '050', '051', '052', '053', '054', '055', '056', '057', '058', '059', // VT
+        // Mid-Atlantic
+        '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', // NY
+        '070', '071', '072', '073', '074', '075', '076', '077', '078', '079', '080', '081', '082', '083', '084', '085', '086', '087', '088', '089', // NJ
+        '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', // PA
+        // Southeast
+        '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', // DC/MD/VA
+        '270', '271', '272', '273', '274', '275', '276', '277', '278', '279', '280', '281', '282', '283', '284', '285', '286', '287', '288', '289', // NC
+        '290', '291', '292', '293', '294', '295', '296', '297', '298', '299', // SC
+        '300', '301', '302', '303', '304', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', // GA
+        '320', '321', '322', '323', '324', '325', '326', '327', '328', '329', '330', '331', '332', '333', '334', '335', '336', '337', '338', '339', '340', '341', '342', '343', '344', '345', '346', '347', '348', '349', // FL
+        '350', '351', '352', '353', '354', '355', '356', '357', '358', '359', '360', '361', '362', '363', '364', '365', '366', '367', '368', '369', // AL
+        '370', '371', '372', '373', '374', '375', '376', '377', '378', '379', '380', '381', '382', '383', '384', '385', '386', '387', '388', '389', // TN
+        '390', '391', '392', '393', '394', '395', '396', '397', '398', '399', // MS
+        '400', '401', '402', '403', '404', '405', '406', '407', '408', '409', '410', '411', '412', '413', '414', '415', '416', '417', '418', '419', '420', '421', '422', '423', '424', '425', '426', '427', // KY
+        '430', '431', '432', '433', '434', '435', '436', '437', '438', '439', '440', '441', '442', '443', '444', '445', '446', '447', '448', '449', '450', '451', '452', '453', '454', '455', '456', '457', '458', '459' // OH
+    ];
+    
+    return tnRegions.includes(zipPrefix) ? 'TN' : 'UT';
+}
+
+// Fetch real-time freight quote
+async function fetchFreightQuote(destinationZip) {
+    if (!productConfig.sku || !destinationZip) {
+        alert('Please select a product and enter a destination zip code');
+        return;
     }
+    
+    const quantity = parseInt(document.getElementById('quantity').value) || 0;
+    if (quantity === 0) {
+        alert('Please enter a quantity');
+        return;
+    }
+    
+    // Show loading state
+    const freightButton = document.getElementById('getFreightQuote');
+    const originalText = freightButton.textContent;
+    freightButton.textContent = 'Fetching quote...';
+    freightButton.disabled = true;
+    
+    try {
+        // Calculate shipment details
+        const totalWeight = calculateTotalWeight(productConfig.sku, quantity);
+        const { totalVolume, cubicFeet } = calculateFreightCost(productConfig.sku, quantity);
+        
+        // Get closest warehouse
+        const warehouseKey = getClosestWarehouse(destinationZip);
+        const warehouse = warehouses[warehouseKey];
+        
+        // Log freight request data for debugging
+        console.log('Freight Quote Request:', {
+            origin_zip: warehouse.zip,
+            destination_zip: destinationZip,
+            weight: Math.ceil(totalWeight),
+            cubic_feet: Math.ceil(cubicFeet),
+            freight_class: totalWeight < 150 ? '85' : '70',
+            accessorials: ['LIFTGATE_DELIVERY', 'INSIDE_DELIVERY']
+        });
+        
+        // Call our proxy server to avoid CORS issues
+        const response = await fetch('http://localhost:3001/api/freight-quote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                origin_zip: warehouse.zip,
+                destination_zip: destinationZip,
+                weight: Math.ceil(totalWeight),
+                height: Math.ceil(cubicFeet * 12 / (48 * 40 / 144)), // Calculate height based on volume
+                freight_class: totalWeight < 150 ? '85' : '70',
+                product_name: productConfig.name
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to get freight rates');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success || !data.cheapest) {
+            throw new Error(data.error || 'No freight rates available');
+        }
+        
+        // Use the cheapest rate from our proxy
+        const freightQuote = parseFloat(data.cheapest.total_cost);
+        const carrierName = data.cheapest.carrier_name;
+        const transitDays = data.cheapest.transit_days;
+        
+        const finalQuote = Math.max(freightQuote, config.minFreightCost);
+        
+        // Update freight cost display with carrier info
+        const freightCostElement = document.getElementById('freightCost');
+        freightCostElement.innerHTML = `${formatCurrency(finalQuote)} <span style="font-size: 12px; color: #666;">(${carrierName})</span>`;
+        
+        // Update the stored freight cost for calculations
+        window.lastFreightQuote = finalQuote;
+        window.lastCarrierInfo = {
+            name: carrierName,
+            transitDays: transitDays,
+            originalQuote: freightQuote
+        };
+        
+        // Recalculate pricing with new freight cost
+        calculatePricing();
+        
+        // Show success message with carrier details
+        const quoteInfo = document.getElementById('freightQuoteInfo');
+        quoteInfo.innerHTML = `
+            <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                ✓ Best rate: ${carrierName} - ${transitDays} transit days<br>
+                <span style="font-size: 12px; color: #666;">From ${warehouse.city}, ${warehouse.state} to ${destinationZip}</span>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Freight quote error:', error);
+        alert('Unable to fetch freight quote. Please try again.');
+    } finally {
+        freightButton.textContent = originalText;
+        freightButton.disabled = false;
+    }
+}
+
+// Calculate freight cost based on total volume
+function calculateFreightCost(sku, quantity) {
+    const components = skuComponents[sku];
+    if (!components) {
+        // Fallback for unmapped SKUs
+        return {
+            freightCost: 0,
+            totalVolume: 0,
+            cubicFeet: 0,
+            needsQuote: true
+        };
+    }
+    
+    // Calculate total volume for all components
+    let totalVolume = 0;
+    
+    for (const component of components) {
+        const componentInfo = componentData[component];
+        if (componentInfo) {
+            // Add volume for this component multiplied by quantity
+            totalVolume += componentInfo.volume * quantity;
+        }
+    }
+    
+    // Convert to cubic feet (from cubic cm)
+    const cubicFeet = totalVolume / 28316.8;
+    
+    // Always use real-time quote if available, otherwise freight is 0 (needs quote)
+    const freightCost = window.lastFreightQuote || 0;
+    const needsQuote = !window.lastFreightQuote;
     
     return {
         freightCost,
-        palletsNeeded,
-        unitsPerPallet
+        totalVolume,
+        cubicFeet,
+        needsQuote
     };
 }
 
@@ -257,6 +441,13 @@ function selectProduct(sku) {
     // Update display
     document.getElementById('productName').textContent = product.name;
     
+    // Clear real-time freight quote when product changes
+    window.lastFreightQuote = null;
+    const quoteInfo = document.getElementById('freightQuoteInfo');
+    if (quoteInfo) {
+        quoteInfo.innerHTML = '';
+    }
+    
     // No longer updating removed price display elements
     
     // Recalculate pricing
@@ -268,6 +459,17 @@ function calculatePricing() {
         resetPricingDisplay();
         return;
     }
+    
+    // Clear real-time quote if quantity changed
+    const currentQuantity = parseInt(document.getElementById('quantity').value) || 0;
+    if (window.lastQuantity && window.lastQuantity !== currentQuantity) {
+        window.lastFreightQuote = null;
+        const quoteInfo = document.getElementById('freightQuoteInfo');
+        if (quoteInfo) {
+            quoteInfo.innerHTML = '';
+        }
+    }
+    window.lastQuantity = currentQuantity;
     
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
     
@@ -291,13 +493,13 @@ function calculatePricing() {
     const retailProductTotal = retailPriceWithoutShipping * quantity;
     const bulkProductTotal = bulkUnitPrice * quantity;
     const retailShippingTotal = productConfig.smallParcelShipping * quantity;
-    const { freightCost, palletsNeeded, unitsPerPallet } = calculateFreightCost(productConfig.sku, quantity);
+    const { freightCost, cubicFeet, needsQuote } = calculateFreightCost(productConfig.sku, quantity);
     
     // Update displays
-    document.getElementById('quantity').textContent = quantity;
+    // Removed line that was trying to update input element's textContent
     
     // Retail pricing
-    document.getElementById('retailUnitCost').textContent = formatCurrency(productConfig.retailPrice);
+    document.getElementById('retailUnitCost').textContent = formatCurrency(retailPriceWithoutShipping);
     document.getElementById('retailQuantity').textContent = quantity;
     document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
     document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
@@ -307,7 +509,17 @@ function calculatePricing() {
     document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
     document.getElementById('bulkQuantity').textContent = quantity;
     document.getElementById('bulkProductTotal').textContent = formatCurrency(bulkProductTotal);
-    document.getElementById('freightCost').textContent = `${formatCurrency(freightCost)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
+    
+    // Show freight cost or prompt for quote
+    if (needsQuote) {
+        // Check if we previously had a quote (quantity or product changed)
+        const needsUpdate = window.lastQuantity && !window.lastFreightQuote;
+        const message = needsUpdate ? 'Update quote' : 'Quote needed';
+        document.getElementById('freightCost').innerHTML = `<span style="color: #ff9800;">${message}</span>`;
+    } else {
+        document.getElementById('freightCost').textContent = formatCurrency(freightCost);
+    }
+    
     document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
     
     // Calculate totals for comparison
@@ -319,15 +531,36 @@ function calculatePricing() {
     const savings = retailTotal - bulkTotal;
     const savingsPercent = ((savings / retailTotal) * 100).toFixed(0);
     
-    if (savings > 0) {
-        savingsBox.textContent = `You save ${formatCurrency(savings).replace('$', '$')} (${savingsPercent}%) with bulk pricing!`;
+    // Update submit button state
+    const submitButton = document.querySelector('.add-to-cart');
+    
+    if (needsQuote) {
+        // Hide savings box until freight quote is obtained
+        savingsBox.style.display = 'none';
+        
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
+    } else if (savings > 0) {
+        savingsBox.style.display = 'block';
+        savingsBox.textContent = `You save ${formatCurrency(savings).replace('$', '$')} (${savingsPercent}%) with bulk pricing`;
         savingsBox.style.background = '#4caf50';
         savingsBox.style.color = 'white';
+        
+        // Enable submit button when bulk is cheaper
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
     } else {
-        savingsBox.innerHTML = `Retail is cheaper by $${Math.abs(savings).toFixed(2)} at this quantity<br>
-        <span style="font-size: 14px;">Bulk savings start at: ${getBreakEvenQuantity()} units</span>`;
-        savingsBox.style.background = '#ff5252';
+        savingsBox.style.display = 'block';
+        savingsBox.textContent = 'Normal pricing is more economical for this quantity';
+        savingsBox.style.background = '#f44336';
         savingsBox.style.color = 'white';
+        
+        // Disable submit button when retail is cheaper
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
     }
     
     // Show/hide MOQ notice
@@ -338,29 +571,35 @@ function calculatePricing() {
         moqNotice.style.display = 'none';
     }
     
-    // Add unit comparison
-    const perUnitRetail = productConfig.retailPrice;
-    const perUnitBulk = (bulkProductTotal + freightCost) / quantity;
-    const textColor = savings > 0 ? '#4caf50' : '#ff5252';
-    
-    const comparisonHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
-            <div style="text-align: center;">
-                <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
-                <div style="font-size: 14px;">Retail $${perUnitRetail.toFixed(2)}</div>
+    // Add unit comparison only if we have freight quote
+    if (!needsQuote) {
+        const perUnitRetail = productConfig.retailPrice;
+        const perUnitBulk = (bulkProductTotal + freightCost) / quantity;
+        const textColor = savings > 0 ? '#4caf50' : '#ff5252';
+        
+        const comparisonHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
+                    <div style="font-size: 14px;">Retail $${perUnitRetail.toFixed(2)}</div>
+                </div>
+                <div style="font-size: 20px; color: ${textColor};">→</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
+                    <div style="font-size: 14px; font-weight: bold; color: ${textColor};">Bulk $${perUnitBulk.toFixed(2)}</div>
+                </div>
             </div>
-            <div style="font-size: 20px; color: ${textColor};">→</div>
-            <div style="text-align: center;">
-                <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
-                <div style="font-size: 14px; font-weight: bold; color: ${textColor};">Bulk $${perUnitBulk.toFixed(2)}</div>
-            </div>
-        </div>
-    `;
-    
-    if (!document.getElementById('unitComparison')) {
-        document.getElementById('savingsBox').insertAdjacentHTML('afterend', `<div id="unitComparison">${comparisonHTML}</div>`);
+        `;
+        
+        if (!document.getElementById('unitComparison')) {
+            document.getElementById('savingsBox').insertAdjacentHTML('afterend', `<div id="unitComparison">${comparisonHTML}</div>`);
+        } else {
+            document.getElementById('unitComparison').innerHTML = comparisonHTML;
+        }
     } else {
-        document.getElementById('unitComparison').innerHTML = comparisonHTML;
+        // Remove unit comparison if no freight quote
+        const unitComparison = document.getElementById('unitComparison');
+        if (unitComparison) unitComparison.remove();
     }
     
     // Calculate actual break-even quantity considering discounts
@@ -388,16 +627,21 @@ function calculatePricing() {
         }
     }
     
-    if (!document.getElementById('breakEven')) {
-        const breakEvenHTML = `
-            <div id="breakEven" style="font-size: 11px; color: ${textColor}; margin-top: 5px;">
-                Bulk savings start at: ${breakEvenQty > 0 ? breakEvenQty : '>500'} units
-            </div>
-        `;
-        document.getElementById('unitComparison').insertAdjacentHTML('afterend', breakEvenHTML);
+    // Add break-even info only if we have a freight quote and bulk is more expensive
+    if (!needsQuote && savings <= 0) {
+        const bulkOrderTotal = document.getElementById('bulkOrderTotal').parentElement;
+        if (!document.getElementById('breakEvenInfo')) {
+            const breakEvenHTML = `
+                <div id="breakEvenInfo" style="font-size: 12px; color: #666; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; text-align: center;">
+                    Bulk savings start at: <strong>${breakEvenQty > 0 ? breakEvenQty : '>500'} units</strong>
+                </div>
+            `;
+            bulkOrderTotal.insertAdjacentHTML('afterend', breakEvenHTML);
+        }
     } else {
-        document.getElementById('breakEven').style.color = textColor;
-        document.getElementById('breakEven').innerHTML = `Bulk savings start at: ${breakEvenQty > 0 ? breakEvenQty : '>500'} units`;
+        // Remove break-even info if bulk is cheaper or no quote
+        const breakEvenInfo = document.getElementById('breakEvenInfo');
+        if (breakEvenInfo) breakEvenInfo.remove();
     }
 }
 
@@ -443,16 +687,33 @@ function resetPricingDisplay() {
     document.getElementById('freightCost').textContent = '$0';
     document.getElementById('bulkOrderTotal').textContent = '$0';
     
-    document.getElementById('savingsBox').textContent = 'Select a product to see pricing comparison';
-    document.getElementById('savingsBox').style.background = '#f5f5f5';
-    document.getElementById('savingsBox').style.color = '#666';
+    const savingsBox = document.getElementById('savingsBox');
     
-    // Remove unit comparison and break-even if they exist
+    // Only show "Select a product" message if no product is actually selected
+    if (!productConfig.sku) {
+        savingsBox.style.display = 'block';
+        savingsBox.textContent = 'Select a product to see pricing comparison';
+        savingsBox.style.background = '#f5f5f5';
+        savingsBox.style.color = '#666';
+    } else {
+        // Hide savings box when product is selected but quantity is 0
+        savingsBox.style.display = 'none';
+    }
+    
+    // Disable submit button when no product selected
+    const submitButton = document.querySelector('.add-to-cart');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
+    }
+    
+    // Remove unit comparison and break-even info if they exist
     const unitComparison = document.getElementById('unitComparison');
     if (unitComparison) unitComparison.remove();
     
-    const breakEven = document.getElementById('breakEven');
-    if (breakEven) breakEven.remove();
+    const breakEvenInfo = document.getElementById('breakEvenInfo');
+    if (breakEvenInfo) breakEvenInfo.remove();
 }
 
 function submitOrderRequest() {
@@ -468,6 +729,12 @@ function submitOrderRequest() {
         return;
     }
     
+    // Check if we have a freight quote
+    if (!window.lastFreightQuote) {
+        alert('Please get a freight quote first');
+        return;
+    }
+    
     // Calculate all values
     let discount = 0; // No default discount, use tiers
     for (const tier of config.pricingTiers) {
@@ -480,7 +747,7 @@ function submitOrderRequest() {
     const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
     const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
     const productTotal = bulkUnitPrice * quantity;
-    const { freightCost, palletsNeeded } = calculateFreightCost(productConfig.sku, quantity);
+    const { freightCost } = calculateFreightCost(productConfig.sku, quantity);
     const totalCost = productTotal + freightCost;
     
     // Check if bulk is actually cheaper
@@ -488,18 +755,21 @@ function submitOrderRequest() {
     const isBulkCheaper = totalCost < retailTotal;
     
     // Create order details
+    const carrierInfo = window.lastCarrierInfo || { name: 'Freight', transitDays: 'N/A' };
     const orderDetails = {
         product: productConfig.name,
         sku: productConfig.sku,
         quantity: quantity,
-        unitPrice: `$${bulkUnitPrice.toFixed(2)}`,
-        productSubtotal: `$${productTotal.toFixed(2)}`,
-        freightCost: `$${freightCost.toFixed(2)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`,
-        totalCost: `$${totalCost.toFixed(2)}`,
+        unitPrice: formatCurrency(bulkUnitPrice),
+        productSubtotal: formatCurrency(productTotal),
+        freightCost: formatCurrency(freightCost),
+        freightCarrier: carrierInfo.name,
+        transitDays: carrierInfo.transitDays,
+        totalCost: formatCurrency(totalCost),
         discount: `${discount}%`,
         retailComparison: isBulkCheaper ? 
-            `Saves $${(retailTotal - totalCost).toFixed(2)} vs retail` : 
-            `Retail is cheaper by $${(totalCost - retailTotal).toFixed(2)}`
+            `Saves ${formatCurrency(retailTotal - totalCost)} vs retail` : 
+            `Retail is cheaper by ${formatCurrency(totalCost - retailTotal)}`
     };
     
     // Create email body
@@ -515,6 +785,7 @@ Pricing:
 - Unit Price: ${orderDetails.unitPrice} (${orderDetails.discount} discount)
 - Product Subtotal: ${orderDetails.productSubtotal}
 - Freight Cost: ${orderDetails.freightCost}
+- Freight Carrier: ${orderDetails.freightCarrier} (${orderDetails.transitDays} transit days)
 - Total Order: ${orderDetails.totalCost}
 
 Comparison: ${orderDetails.retailComparison}

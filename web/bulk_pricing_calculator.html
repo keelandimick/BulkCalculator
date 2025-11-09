@@ -13,7 +13,7 @@
         }
         
         .calculator-container {
-            max-width: 600px;
+            max-width: 750px;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
@@ -105,6 +105,15 @@
             background: #0056b3;
         }
         
+        #getFreightQuote:hover {
+            background: #218838;
+        }
+        
+        #getFreightQuote:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
         .moq-notice {
             background: #fff3cd;
             padding: 12px;
@@ -162,8 +171,8 @@
             <h4 style="margin: 0 0 10px 0; color: #1565c0;">Additional Bulk Discount Tiers</h4>
             <div style="display: flex; justify-content: center; gap: 30px; padding: 0 20px;">
                 <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">1-10 units: <strong>10% off</strong></span>
-                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>20% off</strong></span>
-                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">21+ units: <strong>30% off</strong></span>
+                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>15% off</strong></span>
+                <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">21+ units: <strong>20% off</strong></span>
             </div>
         </div>
         
@@ -178,6 +187,17 @@
         <div class="input-group">
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" value="1" min="1" step="1">
+        </div>
+        
+        <div class="input-group">
+            <label for="destinationZip">Destination Zip Code:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="destinationZip" placeholder="Enter zip code" maxlength="5" style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
+                <button id="getFreightQuote" onclick="fetchFreightQuote(document.getElementById('destinationZip').value)" style="padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; white-space: nowrap;">
+                    Get Real-Time Quote
+                </button>
+            </div>
+            <div id="freightQuoteInfo" style="font-size: 14px; color: #666; margin-top: 5px;"></div>
         </div>
         
         <div class="order-summaries" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
@@ -196,7 +216,7 @@
                     <span id="retailProductSubtotal">$0</span>
                 </div>
                 <div class="pricing-row">
-                    <span>Shipping:</span>
+                    <span>Normal Shipping:</span>
                     <span id="retailShippingTotal">$0</span>
                 </div>
                 <div class="pricing-row total">
@@ -220,7 +240,7 @@
                     <span id="bulkProductTotal">$0</span>
                 </div>
                 <div class="pricing-row">
-                    <span>Freight:</span>
+                    <span>Freight Shipping:</span>
                     <span id="freightCost">$0</span>
                 </div>
                 <div class="pricing-row total">

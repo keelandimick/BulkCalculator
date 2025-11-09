@@ -1,3 +1,22 @@
+// Helper function to format currency with commas
+function formatCurrency(amount) {
+    return '$' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// Product categories
+const productCategories = {
+    'Benches': ['B-DN-46X14', 'B-DN-58X14'],
+    'Coffee Tables': ['CF-U-36X22', 'CF-U-36X22-DRAWER', 'CF-U-46X24', 'CF-U-46X24-DRAWER', 'CF-U-58X28', 'CF-U-58X28-DRAWER'],
+    'Console Tables': ['CN-U-46X14', 'CN-U-58X14'],
+    'Desks': ['D-HP-36X22', 'D-HP-36X22-DRAWER', 'D-HP-46X24', 'D-HP-46X24-DRAWER', 'D-HP-58X28', 'D-HP-58X28-DRAWER',
+             'D-SSB-46X24', 'D-SSB-46X24-DRAWER', 'D-SSB-58X28', 'D-SSB-58X28-DRAWER',
+             'D-SSW-46X24', 'D-SSW-46X24-DRAWER', 'D-SSW-58X28', 'D-SSW-58X28-DRAWER',
+             'D-U-36X22', 'D-U-36X22-DRAWER', 'D-U-46X24', 'D-U-46X24-DRAWER', 'D-U-58X28', 'D-U-58X28-DRAWER'],
+    'Dining Tables': ['DN-U-48X36', 'DN-U-60X36', 'DN-U-72X36'],
+    'Side Tables': ['END-TABLE', 'C-TABLE'],
+    'Accessories': ['MONITOR-STAND-BK']
+};
+
 // Product catalog with names
 const productCatalog = {
     'B-DN-46X14': { name: 'Bench DN 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00 },
@@ -48,21 +67,13 @@ const componentData = {
     '48X36': { unitsPerPallet: 18, volume: 91936 },
     '60X36': { unitsPerPallet: 18, volume: 113365 },
     '72X36': { unitsPerPallet: 18, volume: 133066 },
-    'CF-U': { unitsPerPallet: 42, volume: 45139 },
-    'CN-U': { unitsPerPallet: 42, volume: 43843 },
-    'D-HP': { unitsPerPallet: 36, volume: 62766 },
-    'D-SSB': { unitsPerPallet: 21, volume: 75900 },
-    'D-SSW': { unitsPerPallet: 21, volume: 75900 },
-    'D-U': { unitsPerPallet: 28, volume: 77005 },
-    'B-DN': { unitsPerPallet: 63, volume: 28487 },
-    'DN-U': { unitsPerPallet: 14, volume: 118162 },
-    'C-TABLE': { unitsPerPallet: 12, volume: 144040 },
-    'DRAWER': { unitsPerPallet: 54, volume: 37945 },
-    'END-TABLE': { unitsPerPallet: 60, volume: 30470 },
-    'MONITOR-STAND-BK': { unitsPerPallet: 32, volume: 55082 }
+    'END-TABLE': { unitsPerPallet: 48, volume: 15625 },
+    'C-TABLE': { unitsPerPallet: 40, volume: 20250 },
+    'MONITOR-STAND-BK': { unitsPerPallet: 60, volume: 8000 },
+    'DRAWER': { unitsPerPallet: 36, volume: 12000 }  // Drawer component
 };
 
-// Map parent SKUs to their components
+// Map SKUs to their components
 const skuComponents = {
     'B-DN-46X14': ['B-DN', '46X14'],
     'B-DN-58X14': ['B-DN', '58X14'],
@@ -161,9 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add product selector to the page
     addProductSelector();
     
-    // Set first product as default
-    const firstSku = Object.keys(productCatalog)[0];
-    selectProduct(firstSku);
+    // Don't select a product by default - user must choose
+    // Clear any default values
+    resetPricingDisplay();
     
     // Set up event listener for quantity
     document.getElementById('quantity').addEventListener('input', calculatePricing);
@@ -173,14 +184,20 @@ function addProductSelector() {
     // Find the product info div
     const productInfo = document.querySelector('.product-info');
     
-    // Create selector HTML
+    // Create two-dropdown selector HTML
     const selectorHTML = `
         <div style="margin-bottom: 15px;">
-            <label for="productSelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product:</label>
-            <select id="productSelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
-                ${Object.entries(productCatalog).map(([sku, product]) => 
-                    `<option value="${sku}">${product.name}</option>`
+            <label for="categorySelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product Type:</label>
+            <select id="categorySelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; margin-bottom: 15px;">
+                <option value="">-- Select Category --</option>
+                ${Object.keys(productCategories).map(category => 
+                    `<option value="${category}">${category}</option>`
                 ).join('')}
+            </select>
+            
+            <label for="productSelector" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Product Variation:</label>
+            <select id="productSelector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;" disabled>
+                <option value="">-- First select a product type --</option>
             </select>
         </div>
     `;
@@ -188,10 +205,40 @@ function addProductSelector() {
     // Insert at the beginning of product info
     productInfo.insertAdjacentHTML('afterbegin', selectorHTML);
     
-    // Add change event listener
-    document.getElementById('productSelector').addEventListener('change', function(e) {
-        selectProduct(e.target.value);
+    // Add category change event listener
+    document.getElementById('categorySelector').addEventListener('change', function(e) {
+        updateProductDropdown(e.target.value);
     });
+    
+    // Add product change event listener
+    document.getElementById('productSelector').addEventListener('change', function(e) {
+        if (e.target.value) {
+            selectProduct(e.target.value);
+        }
+    });
+}
+
+function updateProductDropdown(category) {
+    const productSelect = document.getElementById('productSelector');
+    
+    if (!category) {
+        productSelect.disabled = true;
+        productSelect.innerHTML = '<option value="">-- First select a product type --</option>';
+        return;
+    }
+    
+    // Get products for this category
+    const productSkus = productCategories[category];
+    
+    // Enable dropdown and populate with products
+    productSelect.disabled = false;
+    productSelect.innerHTML = `
+        <option value="">-- Select a ${category.slice(0, -1)} --</option>
+        ${productSkus.map(sku => {
+            const product = productCatalog[sku];
+            return `<option value="${sku}">${product.name}</option>`;
+        }).join('')}
+    `;
 }
 
 function selectProduct(sku) {
@@ -204,64 +251,32 @@ function selectProduct(sku) {
         name: product.name,
         retailPrice: product.retailPrice,
         productCost: product.productCost,
-        smallParcelShipping: product.smallParcelShipping,
-        unitsPerPallet: getUnitsPerPallet(sku)
+        smallParcelShipping: product.smallParcelShipping
     };
     
     // Update display
-    document.getElementById('productName').textContent = `${productConfig.sku} - ${productConfig.name}`;
+    document.getElementById('productName').textContent = product.name;
     
-    // Remove MOQ notice completely
-    const moqNotice = document.getElementById('moqNotice');
-    if (moqNotice) {
-        moqNotice.style.display = 'none';
-    }
-    
-    // Update selector if needed
-    const selector = document.getElementById('productSelector');
-    if (selector && selector.value !== sku) {
-        selector.value = sku;
-    }
+    // No longer updating removed price display elements
     
     // Recalculate pricing
     calculatePricing();
 }
 
 function calculatePricing() {
-    const quantity = parseInt(document.getElementById('quantity').value) || 0;
-    
-    if (quantity === 0) {
-        // Reset all displays to zero
-        document.getElementById('retailUnitPrice').textContent = '$0.00';
-        document.getElementById('retailBreakdown').textContent = '$0.00 + $0.00 shipping';
-        document.getElementById('bulkUnitPrice').textContent = '$0.00';
-        document.getElementById('bulkBreakdown').innerHTML = '$0.00 - 0% discount<br><span style="font-size: 12px;">(freight not included)</span>';
-        
-        // Reset retail order summary
-        document.getElementById('retailUnitCost').textContent = '$0.00';
-        document.getElementById('retailQuantity').textContent = '0';
-        document.getElementById('retailDiscount').textContent = '0%';
-        document.getElementById('retailProductSubtotal').textContent = '$0.00';
-        document.getElementById('retailShippingTotal').textContent = '$0.00';
-        document.getElementById('retailOrderTotal').textContent = '$0.00';
-        
-        // Reset bulk order summary
-        document.getElementById('bulkUnitCost').textContent = '$0.00';
-        document.getElementById('bulkQuantity').textContent = '0';
-        document.getElementById('bulkDiscount').textContent = '0%';
-        document.getElementById('bulkProductTotal').textContent = '$0.00';
-        document.getElementById('freightCost').textContent = '$0.00';
-        document.getElementById('bulkOrderTotal').textContent = '$0.00';
-        
-        document.getElementById('savingsBox').style.display = 'none';
+    if (!productConfig.sku) {
+        resetPricingDisplay();
         return;
     }
     
-    // Calculate retail pricing (price already includes shipping)
-    const retailUnitPrice = productConfig.retailPrice; // This already includes shipping
-    const retailTotal = retailUnitPrice * quantity;
+    const quantity = parseInt(document.getElementById('quantity').value) || 0;
     
-    // Calculate bulk pricing with discounts (minimum 10% for wholesale)
+    if (quantity === 0) {
+        resetPricingDisplay();
+        return;
+    }
+    
+    // Calculate discount based on quantity
     let discount = 0; // No default discount, use tiers
     for (const tier of config.pricingTiers) {
         if (quantity >= tier.minQty && (tier.maxQty === null || quantity <= tier.maxQty)) {
@@ -270,71 +285,91 @@ function calculatePricing() {
         }
     }
     
-    // For bulk, we need to remove shipping from retail price before applying discount
+    // Calculate pricing
     const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
     const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+    const retailProductTotal = retailPriceWithoutShipping * quantity;
     const bulkProductTotal = bulkUnitPrice * quantity;
-    
-    // Calculate freight cost based on pallets
+    const retailShippingTotal = productConfig.smallParcelShipping * quantity;
     const { freightCost, palletsNeeded, unitsPerPallet } = calculateFreightCost(productConfig.sku, quantity);
+    
+    // Update displays
+    // Removed line that was trying to update input element's textContent
+    
+    // Retail pricing
+    document.getElementById('retailUnitCost').textContent = formatCurrency(retailPriceWithoutShipping);
+    document.getElementById('retailQuantity').textContent = quantity;
+    document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
+    document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
+    document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
+    
+    // Bulk pricing
+    document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
+    document.getElementById('bulkQuantity').textContent = quantity;
+    document.getElementById('bulkProductTotal').textContent = formatCurrency(bulkProductTotal);
+    document.getElementById('freightCost').textContent = `${formatCurrency(freightCost)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
+    document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
+    
+    // Calculate totals for comparison
+    const retailTotal = retailProductTotal + retailShippingTotal;
     const bulkTotal = bulkProductTotal + freightCost;
     
-    // Update retail displays
-    document.getElementById('retailUnitPrice').textContent = `$${retailUnitPrice.toFixed(2)}`;
-    const retailPriceNoShip = retailUnitPrice - productConfig.smallParcelShipping;
-    document.getElementById('retailBreakdown').textContent = `$${retailPriceNoShip.toFixed(2)} + $${productConfig.smallParcelShipping.toFixed(2)} shipping`;
-    
-    // Update bulk displays
-    document.getElementById('bulkUnitPrice').textContent = `$${bulkUnitPrice.toFixed(2)}`;
-    document.getElementById('bulkBreakdown').innerHTML = `$${retailPriceWithoutShipping.toFixed(2)} - ${discount}% discount<br><span style="font-size: 12px;">(freight not included)</span>`;
-    
-    // Update retail order summary
-    document.getElementById('retailUnitCost').textContent = `$${retailPriceNoShip.toFixed(2)}`;
-    document.getElementById('retailQuantity').textContent = quantity;
-    document.getElementById('retailDiscount').textContent = '0%';
-    document.getElementById('retailProductSubtotal').textContent = `$${(retailPriceNoShip * quantity).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-    document.getElementById('retailShippingTotal').textContent = `$${(productConfig.smallParcelShipping * quantity).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-    document.getElementById('retailOrderTotal').textContent = `$${retailTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-    
-    // Update bulk order summary
-    document.getElementById('bulkUnitCost').textContent = `$${retailPriceWithoutShipping.toFixed(2)}`;
-    document.getElementById('bulkQuantity').textContent = quantity;
-    document.getElementById('bulkDiscount').textContent = `${discount}%`;
-    document.getElementById('bulkProductTotal').textContent = `$${bulkProductTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-    
-    // Show freight with pallet count
-    document.getElementById('freightCost').textContent = `$${freightCost.toFixed(2)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`;
-    document.getElementById('bulkOrderTotal').textContent = `$${bulkTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-    
-    // Show comparison message
+    // Update savings box
     const savingsBox = document.getElementById('savingsBox');
-    if (bulkTotal < retailTotal) {
-        const savings = retailTotal - bulkTotal;
-        savingsBox.textContent = `Bulk pricing saves $${savings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} (${((savings/retailTotal)*100).toFixed(1)}%)`;
-        savingsBox.style.backgroundColor = '#e8f5e9'; // Same light green as bulk order summary
-        savingsBox.style.color = '#388e3c'; // Dark green text
+    const savings = retailTotal - bulkTotal;
+    const savingsPercent = ((savings / retailTotal) * 100).toFixed(0);
+    
+    // Update submit button state
+    const submitButton = document.querySelector('.add-to-cart');
+    
+    if (savings > 0) {
         savingsBox.style.display = 'block';
+        savingsBox.textContent = `You save ${formatCurrency(savings).replace('$', '$')} (${savingsPercent}%) with bulk pricing`;
+        savingsBox.style.background = '#4caf50';
+        savingsBox.style.color = 'white';
+        
+        // Enable submit button when bulk is cheaper
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
     } else {
-        const extra = bulkTotal - retailTotal;
-        savingsBox.textContent = `Retail is cheaper by $${extra.toFixed(2)} at this quantity`;
-        savingsBox.style.backgroundColor = '#ffebee'; // Same light red as retail order summary
-        savingsBox.style.color = '#d32f2f'; // Dark red text
-        savingsBox.style.display = 'block';
+        savingsBox.style.display = 'none';
+        
+        // Disable submit button when retail is cheaper
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
     }
     
-    // Add detailed comparison
-    const retailUnitWithShipping = retailTotal / quantity;
-    const bulkUnitWithFreight = bulkTotal / quantity;
+    // Show/hide MOQ notice
+    const moqNotice = document.getElementById('moqNotice');
+    if (quantity < 100) {
+        moqNotice.style.display = 'none';
+    } else {
+        moqNotice.style.display = 'none';
+    }
     
-    const textColor = bulkTotal < retailTotal ? '#388e3c' : '#d32f2f';
+    // Add unit comparison
+    const perUnitRetail = productConfig.retailPrice;
+    const perUnitBulk = (bulkProductTotal + freightCost) / quantity;
+    const textColor = savings > 0 ? '#4caf50' : '#ff5252';
+    
     const comparisonHTML = `
-        <div style="font-size: 12px; margin-top: 10px; color: ${textColor};">
-            Per unit all-in: Retail $${retailUnitWithShipping.toFixed(2)} | Bulk $${bulkUnitWithFreight.toFixed(2)}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
+            <div style="text-align: center;">
+                <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
+                <div style="font-size: 14px;">Retail $${perUnitRetail.toFixed(2)}</div>
+            </div>
+            <div style="font-size: 20px; color: ${textColor};">→</div>
+            <div style="text-align: center;">
+                <div style="font-size: 12px; color: #666;">Per unit all-in:</div>
+                <div style="font-size: 14px; font-weight: bold; color: ${textColor};">Bulk $${perUnitBulk.toFixed(2)}</div>
+            </div>
         </div>
     `;
     
     if (!document.getElementById('unitComparison')) {
-        savingsBox.insertAdjacentHTML('beforeend', `<div id="unitComparison">${comparisonHTML}</div>`);
+        document.getElementById('savingsBox').insertAdjacentHTML('afterend', `<div id="unitComparison">${comparisonHTML}</div>`);
     } else {
         document.getElementById('unitComparison').innerHTML = comparisonHTML;
     }
@@ -364,21 +399,95 @@ function calculatePricing() {
         }
     }
     
-    if (!document.getElementById('breakEven')) {
-        const breakEvenHTML = `
-            <div id="breakEven" style="font-size: 11px; color: ${textColor}; margin-top: 5px;">
-                Bulk savings start at: ${breakEvenQty > 0 ? breakEvenQty : '>500'} units
-            </div>
-        `;
-        document.getElementById('unitComparison').insertAdjacentHTML('afterend', breakEvenHTML);
+    // Add break-even info to bulk order summary if bulk is more expensive
+    if (savings <= 0) {
+        const bulkOrderTotal = document.getElementById('bulkOrderTotal').parentElement;
+        if (!document.getElementById('breakEvenInfo')) {
+            const breakEvenHTML = `
+                <div id="breakEvenInfo" style="font-size: 12px; color: #666; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; text-align: center;">
+                    Bulk savings start at: <strong>${breakEvenQty > 0 ? breakEvenQty : '>500'} units</strong>
+                </div>
+            `;
+            bulkOrderTotal.insertAdjacentHTML('afterend', breakEvenHTML);
+        }
     } else {
-        document.getElementById('breakEven').style.color = textColor;
-        document.getElementById('breakEven').innerHTML = `Bulk savings start at: ${breakEvenQty > 0 ? breakEvenQty : '>500'} units`;
+        // Remove break-even info if bulk is cheaper
+        const breakEvenInfo = document.getElementById('breakEvenInfo');
+        if (breakEvenInfo) breakEvenInfo.remove();
     }
 }
 
-function addToCart() {
+function getBreakEvenQuantity() {
+    if (!productConfig.sku) return 0;
+    
+    for (let q = 1; q <= 500; q++) {
+        const retailTotal = productConfig.retailPrice * q;
+        
+        let discount = 0; // No default discount, use tiers
+        for (const tier of config.pricingTiers) {
+            if (q >= tier.minQty && (tier.maxQty === null || q <= tier.maxQty)) {
+                discount = tier.discount;
+                break;
+            }
+        }
+        
+        const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
+        const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+        const bulkProductTotal = bulkUnitPrice * q;
+        const { freightCost } = calculateFreightCost(productConfig.sku, q);
+        const bulkTotal = bulkProductTotal + freightCost;
+        
+        if (bulkTotal < retailTotal) {
+            return q;
+        }
+    }
+    
+    return '>500';
+}
+
+function resetPricingDisplay() {
+    // Reset all displays to default
+    document.getElementById('retailUnitCost').textContent = '$0';
+    document.getElementById('retailQuantity').textContent = '0';
+    document.getElementById('retailProductSubtotal').textContent = '$0';
+    document.getElementById('retailShippingTotal').textContent = '$0';
+    document.getElementById('retailOrderTotal').textContent = '$0';
+    
+    document.getElementById('bulkUnitCost').textContent = '$0';
+    document.getElementById('bulkQuantity').textContent = '0';
+    document.getElementById('bulkProductTotal').textContent = '$0';
+    document.getElementById('freightCost').textContent = '$0';
+    document.getElementById('bulkOrderTotal').textContent = '$0';
+    
+    const savingsBox = document.getElementById('savingsBox');
+    savingsBox.style.display = 'block';
+    savingsBox.textContent = 'Select a product to see pricing comparison';
+    savingsBox.style.background = '#f5f5f5';
+    savingsBox.style.color = '#666';
+    
+    // Disable submit button when no product selected
+    const submitButton = document.querySelector('.add-to-cart');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
+    }
+    
+    // Remove unit comparison and break-even info if they exist
+    const unitComparison = document.getElementById('unitComparison');
+    if (unitComparison) unitComparison.remove();
+    
+    const breakEvenInfo = document.getElementById('breakEvenInfo');
+    if (breakEvenInfo) breakEvenInfo.remove();
+}
+
+function submitOrderRequest() {
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
+    
+    if (!productConfig.sku) {
+        alert('Please select a product');
+        return;
+    }
     
     if (quantity === 0) {
         alert('Please enter a quantity');
@@ -397,31 +506,75 @@ function addToCart() {
     const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
     const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
     const productTotal = bulkUnitPrice * quantity;
-    const { freightCost } = calculateFreightCost(productConfig.sku, quantity);
+    const { freightCost, palletsNeeded } = calculateFreightCost(productConfig.sku, quantity);
     const totalCost = productTotal + freightCost;
     
     // Check if bulk is actually cheaper
-    const retailTotal = productConfig.retailPrice * quantity; // Retail price already includes shipping
+    const retailTotal = productConfig.retailPrice * quantity;
     const isBulkCheaper = totalCost < retailTotal;
     
-    // Create cart item
-    const cartItem = {
+    // Create order details
+    const orderDetails = {
+        product: productConfig.name,
         sku: productConfig.sku,
-        name: productConfig.name,
         quantity: quantity,
-        unitPrice: bulkUnitPrice,
-        productTotal: productTotal,
-        freightCost: freightCost,
-        totalCost: totalCost,
-        discount: discount,
-        isBulkOrder: true,
-        isBulkCheaper: isBulkCheaper
+        unitPrice: `$${bulkUnitPrice.toFixed(2)}`,
+        productSubtotal: `$${productTotal.toFixed(2)}`,
+        freightCost: `$${freightCost.toFixed(2)} (${palletsNeeded} pallet${palletsNeeded > 1 ? 's' : ''})`,
+        totalCost: `$${totalCost.toFixed(2)}`,
+        discount: `${discount}%`,
+        retailComparison: isBulkCheaper ? 
+            `Saves $${(retailTotal - totalCost).toFixed(2)} vs retail` : 
+            `Retail is cheaper by $${(totalCost - retailTotal).toFixed(2)}`
     };
     
-    // Show appropriate message
-    if (isBulkCheaper) {
-        alert(`Added to cart (Bulk Pricing):\n${quantity} x ${productConfig.name}\nSKU: ${productConfig.sku}\nUnit Price: $${bulkUnitPrice.toFixed(2)} (${discount}% off)\nTotal: $${totalCost.toFixed(2)} (includes freight)`);
-    } else {
-        alert(`Note: Retail pricing would be cheaper for this quantity.\nBulk Total: $${totalCost.toFixed(2)}\nRetail Total: $${retailTotal.toFixed(2)}\n\nConsider ordering ${Math.ceil(config.baseLtlFreight / productConfig.smallParcelShipping)} or more units for bulk savings.`);
-    }
+    // Create email body
+    const emailSubject = `Bulk Order Request - ${productConfig.name} (${quantity} units)`;
+    const emailBody = `New Bulk Order Request
+
+Product Details:
+- Product: ${orderDetails.product}
+- SKU: ${orderDetails.sku}
+- Quantity: ${orderDetails.quantity}
+
+Pricing:
+- Unit Price: ${orderDetails.unitPrice} (${orderDetails.discount} discount)
+- Product Subtotal: ${orderDetails.productSubtotal}
+- Freight Cost: ${orderDetails.freightCost}
+- Total Order: ${orderDetails.totalCost}
+
+Comparison: ${orderDetails.retailComparison}
+
+Customer should be contacted to confirm this order.`;
+    
+    // Create mailto link
+    const mailtoLink = `mailto:info@keelanscott.co?cc=keelandimick@gmail.com&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+    
+    // Show thank you message
+    setTimeout(() => {
+        document.querySelector('.calculator-container').innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <img src="ks-logo.jpg" alt="Keelan Scott" style="height: 54px; margin-bottom: 20px;">
+                <h2 style="color: #4caf50; margin-bottom: 20px;">Thank You for Your Order Request!</h2>
+                <p style="font-size: 18px; margin-bottom: 30px;">
+                    We've received your bulk order request for:<br>
+                    <strong>${productConfig.name} (${quantity} units)</strong>
+                </p>
+                <p style="color: #666; margin-bottom: 30px;">
+                    A member of our team will contact you within 24 hours to confirm your order and arrange payment.
+                </p>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px;">Order Summary</h3>
+                    <p>Total: <strong>${orderDetails.totalCost}</strong></p>
+                    <p>${orderDetails.retailComparison}</p>
+                </div>
+                <button class="add-to-cart" onclick="location.reload()">
+                    Submit Another Request
+                </button>
+            </div>
+        `;
+    }, 100);
 }
