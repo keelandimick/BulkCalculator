@@ -545,10 +545,21 @@ function calculateFreightCost(sku, quantity) {
 
 // Function to send height to parent window
 function sendHeightToParent() {
-    const height = document.documentElement.scrollHeight;
+    // Get all possible height measurements and use the largest
+    const heights = [
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight,
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.body.clientHeight
+    ];
+    
+    const maxHeight = Math.max(...heights);
+    const heightWithPadding = maxHeight + 50; // Add 50px padding for safety
+    
     if (window.parent !== window) {
         window.parent.postMessage({
-            height: height,
+            height: heightWithPadding,
             source: 'bulkCalculator'
         }, '*');
     }
@@ -597,7 +608,7 @@ function addProductSelector() {
             </div>
             
             <label style="display: block; margin-bottom: 8px; font-weight: 500;">Select Product Category:</label>
-            <div id="categoryButtons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 20px; min-height: 44px;">
+            <div id="categoryButtons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; min-height: 44px;">
                 <span style="color: #999; font-size: 14px; padding: 10px;">-- First select a furniture type --</span>
             </div>
             

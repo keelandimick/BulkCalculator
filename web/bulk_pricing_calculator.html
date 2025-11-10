@@ -114,6 +114,51 @@
             cursor: not-allowed;
         }
         
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .calculator-container {
+                padding: 20px;
+            }
+            
+            /* Stack discount tiers vertically on mobile */
+            div[style*="display: flex"][style*="justify-content: center"] {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            
+            /* Make furniture type buttons 2x2 grid on mobile */
+            #furnitureTypeButtons {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            /* Adjust button text size */
+            .furniture-type-btn, .category-btn {
+                font-size: 13px !important;
+                padding: 10px 10px !important;
+            }
+            
+            /* Stack comparison tables vertically */
+            .order-summaries {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            
+            /* Adjust image sizes on mobile */
+            #productImageContainer > div {
+                width: 250px !important;
+                height: 250px !important;
+            }
+            
+            /* Make freight quote button stack */
+            div[style*="display: flex"][style*="gap: 10px"] {
+                flex-direction: column !important;
+            }
+            
+            #getFreightQuote {
+                width: 100% !important;
+            }
+        }
+        
         .moq-notice {
             background: #fff3cd;
             padding: 12px;

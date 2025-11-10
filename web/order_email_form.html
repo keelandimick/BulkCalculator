@@ -228,23 +228,23 @@
                 <span>${orderData.product}</span>
             </div>
             <div class="order-row">
-                <span>SKU:</span>
-                <span>${orderData.sku}</span>
-            </div>
-            <div class="order-row">
                 <span>Quantity:</span>
                 <span>${orderData.quantity} units</span>
             </div>
             <div class="order-row">
-                <span>Unit Price:</span>
-                <span>${orderData.unitPrice} (${orderData.discount} off)</span>
+                <span>Unit Cost:</span>
+                <span>${orderData.unitPrice}</span>
+            </div>
+            <div class="order-row">
+                <span>Bulk Discount:</span>
+                <span>${orderData.discount}</span>
             </div>
             <div class="order-row">
                 <span>Product Subtotal:</span>
                 <span>${orderData.productSubtotal}</span>
             </div>
             <div class="order-row">
-                <span>Freight (${orderData.freightCarrier}):</span>
+                <span>Freight Shipping:</span>
                 <span>${orderData.freightCost}</span>
             </div>
             <div class="order-row total">
