@@ -705,8 +705,19 @@ function updateProductDropdown(category) {
     
     // Enable dropdown and populate with products
     productSelect.disabled = false;
+    
+    // Fix grammar for specific categories
+    let categoryLabel = category.slice(0, -1); // Default: remove 's'
+    if (category === 'Shelves') {
+        categoryLabel = 'Shelf';
+    } else if (category === 'Accessories') {
+        categoryLabel = 'Accessory';
+    } else if (category === 'Benches') {
+        categoryLabel = 'Bench';
+    }
+    
     productSelect.innerHTML = `
-        <option value="">-- Select a ${category.slice(0, -1)} --</option>
+        <option value="">-- Select a ${categoryLabel} --</option>
         ${productSkus.map(sku => {
             const product = productCatalog[sku];
             return `<option value="${sku}">${product.name}</option>`;
@@ -1254,54 +1265,23 @@ function submitOrderRequest() {
             `Retail is cheaper by ${formatCurrency(totalCost - retailTotal)}`
     };
     
-    // Create email body
-    const emailSubject = `Bulk Order Request - ${productConfig.name} (${quantity} units)`;
-    const emailBody = `New Bulk Order Request
-
-Product Details:
-- Product: ${orderDetails.product}
-- SKU: ${orderDetails.sku}
-- Quantity: ${orderDetails.quantity}
-
-Pricing:
-- Unit Price: ${orderDetails.unitPrice} (${orderDetails.discount} discount)
-- Product Subtotal: ${orderDetails.productSubtotal}
-- Freight Cost: ${orderDetails.freightCost}
-- Freight Carrier: ${orderDetails.freightCarrier} (${orderDetails.transitDays} transit days)
-- Total Order: ${orderDetails.totalCost}
-
-Comparison: ${orderDetails.retailComparison}
-
-Customer should be contacted to confirm this order.`;
+    // Create URL parameters for order details
+    const params = new URLSearchParams({
+        product: productConfig.name,
+        sku: productConfig.sku,
+        quantity: quantity.toString(),
+        unitPrice: orderDetails.unitPrice,
+        productSubtotal: orderDetails.productSubtotal,
+        freightCost: orderDetails.freightCost,
+        freightCarrier: orderDetails.freightCarrier,
+        transitDays: orderDetails.transitDays,
+        totalCost: orderDetails.totalCost,
+        discount: orderDetails.discount,
+        savings: isBulkCheaper ? 
+            `Saves ${formatCurrency(retailTotal - totalCost)} vs retail` : 
+            ''
+    });
     
-    // Create mailto link
-    const mailtoLink = `mailto:info@keelanscott.co?cc=keelandimick@gmail.com&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Open email client
-    window.location.href = mailtoLink;
-    
-    // Show thank you message
-    setTimeout(() => {
-        document.querySelector('.calculator-container').innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <img src="ks-logo.jpg" alt="Keelan Scott" style="height: 54px; margin-bottom: 20px;">
-                <h2 style="color: #4caf50; margin-bottom: 20px;">Thank You for Your Order Request!</h2>
-                <p style="font-size: 18px; margin-bottom: 30px;">
-                    We've received your bulk order request for:<br>
-                    <strong>${productConfig.name} (${quantity} units)</strong>
-                </p>
-                <p style="color: #666; margin-bottom: 30px;">
-                    A member of our team will contact you within 24 hours to confirm your order and arrange payment.
-                </p>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 15px;">Order Summary</h3>
-                    <p>Total: <strong>${orderDetails.totalCost}</strong></p>
-                    <p>${orderDetails.retailComparison}</p>
-                </div>
-                <button class="add-to-cart" onclick="location.reload()">
-                    Submit Another Request
-                </button>
-            </div>
-        `;
-    }, 100);
+    // Redirect to email form page
+    window.location.href = `order_email_form.html?${params.toString()}`;
 }
