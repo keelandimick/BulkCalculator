@@ -116,8 +116,22 @@
         
         /* Mobile responsive styles */
         @media (max-width: 768px) {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
             .calculator-container {
-                padding: 20px;
+                padding: 15px;
+                border-radius: 0; /* Remove rounded corners on mobile */
+                max-width: 100%;
+                margin: 0;
+                box-shadow: none; /* Remove shadow on mobile for cleaner look */
+            }
+            
+            /* Make logo smaller on mobile */
+            img[src="ks-logo.jpg"] {
+                height: 36px !important; /* Smaller logo on mobile */
             }
             
             /* Stack discount tiers vertically on mobile */
