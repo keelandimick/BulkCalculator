@@ -180,7 +180,7 @@ const BulkPricingCalculator = ({ product }) => {
         .bulk-calculator {
           max-width: 500px;
           padding: 20px;
-          background: #fff;
+          background: #f4f2ed;
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -191,7 +191,7 @@ const BulkPricingCalculator = ({ product }) => {
         
         .retail-price {
           font-size: 24px;
-          color: #666;
+          color: #384637;
           text-decoration: line-through;
         }
         
@@ -245,7 +245,7 @@ const BulkPricingCalculator = ({ product }) => {
         
         .price-box h4 {
           margin: 0 0 10px 0;
-          color: #666;
+          color: #384637;
         }
         
         .unit-price {
@@ -263,7 +263,7 @@ const BulkPricingCalculator = ({ product }) => {
           position: absolute;
           top: 5px;
           right: 5px;
-          background: #4caf50;
+          background: #384637;
           color: white;
           padding: 4px 8px;
           border-radius: 4px;
@@ -272,7 +272,7 @@ const BulkPricingCalculator = ({ product }) => {
         }
         
         .pricing-breakdown {
-          background: #f5f5f5;
+          background: #f4f2ed;
           padding: 15px;
           border-radius: 8px;
           margin-bottom: 15px;
@@ -290,12 +290,12 @@ const BulkPricingCalculator = ({ product }) => {
         
         .pricing-row.freight-per-unit {
           font-size: 12px;
-          color: #666;
+          color: #384637;
           font-style: italic;
         }
         
         .pricing-row.total {
-          border-top: 2px solid #333;
+          border-top: 2px solid #384637;
           padding-top: 10px;
           margin-top: 10px;
           font-weight: bold;
@@ -303,7 +303,7 @@ const BulkPricingCalculator = ({ product }) => {
         }
         
         .savings-box {
-          background: #4caf50;
+          background: #384637;
           color: white;
           padding: 15px;
           border-radius: 6px;
@@ -315,7 +315,7 @@ const BulkPricingCalculator = ({ product }) => {
         .add-to-cart-btn {
           width: 100%;
           padding: 15px;
-          background: #007bff;
+          background: #384637;
           color: white;
           border: none;
           border-radius: 6px;
@@ -326,7 +326,7 @@ const BulkPricingCalculator = ({ product }) => {
         }
         
         .add-to-cart-btn:hover {
-          background: #0056b3;
+          background: #2a3329;
         }
         
         .add-to-cart-btn.disabled {

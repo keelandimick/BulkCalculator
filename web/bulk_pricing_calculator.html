@@ -9,7 +9,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f4f2ed;
         }
         
         .calculator-container {
@@ -22,7 +22,7 @@
         }
         
         h2 {
-            color: #333;
+            color: #384637;
             margin-bottom: 20px;
         }
         
@@ -59,7 +59,7 @@
         }
         
         .pricing-breakdown {
-            background: #e3f2fd;
+            background: #f4f2ed;
             padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
@@ -73,7 +73,7 @@
         }
         
         .pricing-row.total {
-            border-top: 2px solid #1976d2;
+            border-top: 2px solid #384637;
             padding-top: 15px;
             font-weight: bold;
             font-size: 18px;
@@ -89,7 +89,7 @@
         }
         
         .add-to-cart {
-            background: #007bff;
+            background: #384637;
             color: white;
             padding: 15px 30px;
             border: none;
@@ -102,11 +102,11 @@
         }
         
         .add-to-cart:hover {
-            background: #0056b3;
+            background: #2a3329;
         }
         
         #getFreightQuote:hover {
-            background: #218838;
+            background: #2a3329;
         }
         
         #getFreightQuote:disabled {
@@ -167,8 +167,8 @@
         </div>
         <h2>Bulk Order Pricing Comparison</h2>
         
-        <div style="background: #e3f2fd; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; color: #1565c0;">Additional Bulk Discount Tiers</h4>
+        <div style="background: #f4f2ed; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; color: #384637;">Additional Bulk Discount Tiers</h4>
             <div style="display: flex; justify-content: center; gap: 30px; padding: 0 20px;">
                 <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">1-10 units: <strong>10% off</strong></span>
                 <span style="padding: 5px 15px; background: white; border-radius: 4px; white-space: nowrap;">11-20 units: <strong>15% off</strong></span>
@@ -193,7 +193,7 @@
             <label for="destinationZip">Destination Zip Code:</label>
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="destinationZip" placeholder="Enter zip code" maxlength="5" style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
-                <button id="getFreightQuote" onclick="fetchFreightQuote(document.getElementById('destinationZip').value)" style="padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; white-space: nowrap;">
+                <button id="getFreightQuote" onclick="fetchFreightQuote(document.getElementById('destinationZip').value)" style="padding: 12px 20px; background: #384637; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; white-space: nowrap;">
                     Get Real-Time Quote
                 </button>
             </div>
@@ -250,7 +250,7 @@
             </div>
         </div>
         
-        <div class="savings" id="savingsBox" style="background: #f5f5f5; color: #666;">
+        <div class="savings" id="savingsBox" style="background: #f4f2ed; color: #384637;">
             Select a product to see pricing comparison
         </div>
         

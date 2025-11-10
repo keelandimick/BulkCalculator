@@ -7,67 +7,45 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const FREIGHTVIEW_CLIENT_ID = process.env.FREIGHTVIEW_CLIENT_ID || '691037df93290c107d289b99';
-const FREIGHTVIEW_CLIENT_SECRET = process.env.FREIGHTVIEW_CLIENT_SECRET || 'Z8EsTovVJMC9MQ6m98q7sDq2uFmuUIWhJT5SMLBHYFgcvxCIvXatIMt';
+const FREIGHTVIEW_API_KEY = process.env.FREIGHTVIEW_API_KEY || 'SKktZsCMbDgpftTm3U0QyxaY1KbhvAKfk5N9bU3elI5w7TK09ZWpVWGw';
 
 // FreightView quote endpoint
 app.post('/api/freight-quote', async (req, res) => {
     try {
         const { origin_zip, destination_zip, weight, height, freight_class, product_name } = req.body;
         
-        // First get access token
-        const tokenResponse = await axios.post(
-            'https://api.freightview.com/v2.0/auth/token',
-            {
-                client_id: FREIGHTVIEW_CLIENT_ID,
-                client_secret: FREIGHTVIEW_CLIENT_SECRET,
-                grant_type: 'client_credentials'
-            },
-            {
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
+        // Create Basic Auth header (API key with empty password)
+        const auth = Buffer.from(`${FREIGHTVIEW_API_KEY}:`).toString('base64');
         
-        const accessToken = tokenResponse.data.access_token;
+        // Get today's date for pickup
+        const today = new Date();
+        const pickupDate = today.toISOString().split('T')[0];
         
-        // Prepare freight items
-        const freightItems = [{
-            weight: weight,
-            length: 48, // Standard pallet
-            width: 40,
-            height: height,
-            quantity: 1,
-            description: product_name || 'Furniture',
-            nmfc: weight < 150 ? '79580' : '79560',
-            freight_class: freight_class,
-            stackable: false,
-            hazmat: false
-        }];
-        
-        // Get freight quotes
+        // Get freight quotes from v1.0 API
         const ratesResponse = await axios.post(
-            'https://api.freightview.com/v2.0/rates',
+            'https://www.freightview.com/api/v1.0/rates',
             {
-                origin: {
-                    postal_code: origin_zip,
-                    country: 'US'
-                },
-                destination: {
-                    postal_code: destination_zip,
-                    country: 'US',
-                    location_type: 'residential',
-                    liftgate_required: true
-                },
-                items: freightItems,
+                pickupDate: pickupDate,
+                originPostalCode: origin_zip,
+                destPostalCode: destination_zip,
+                items: [{
+                    weight: weight,
+                    freightClass: parseInt(freight_class) || 85,
+                    length: 48,
+                    width: 40,
+                    height: height,
+                    quantity: 1,
+                    description: product_name || 'Furniture'
+                }],
                 accessorials: [
-                    'liftgate_delivery',
-                    'inside_delivery',
-                    'residential_delivery'
+                    'LIFTGATE_DELIVERY',
+                    'INSIDE_DELIVERY',
+                    'RESIDENTIAL_DELIVERY'
                 ]
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
+                    'Authorization': `Basic ${auth}`,
                     'Content-Type': 'application/json'
                 }
             }
@@ -81,16 +59,16 @@ app.post('/api/freight-quote', async (req, res) => {
         
         // Find cheapest rate
         const cheapest = rates.reduce((min, rate) => 
-            parseFloat(rate.total_cost) < parseFloat(min.total_cost) ? rate : min
+            parseFloat(rate.total) < parseFloat(min.total) ? rate : min
         );
         
         res.json({
             success: true,
             rates: rates,
             cheapest: {
-                total_cost: cheapest.total_cost,
-                carrier_name: cheapest.carrier_name || cheapest.scac || 'Carrier',
-                transit_days: cheapest.transit_days || 'N/A',
+                total_cost: cheapest.total,
+                carrier_name: cheapest.carrierName || cheapest.carrier || 'Carrier',
+                transit_days: cheapest.estimatedTransitDays || cheapest.transitDays || 'N/A',
                 scac: cheapest.scac
             }
         });
@@ -107,5 +85,5 @@ app.post('/api/freight-quote', async (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Freight proxy server running on port ${PORT}`);
-    console.log('FreightView credentials loaded:', !!FREIGHTVIEW_CLIENT_ID && !!FREIGHTVIEW_CLIENT_SECRET);
+    console.log('FreightView API key loaded:', !!FREIGHTVIEW_API_KEY);
 });

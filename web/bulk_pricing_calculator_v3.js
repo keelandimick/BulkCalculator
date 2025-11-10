@@ -5,56 +5,129 @@ function formatCurrency(amount) {
 
 // Product categories
 const productCategories = {
-    'Benches': ['B-DN-46X14', 'B-DN-58X14'],
-    'Coffee Tables': ['CF-U-36X22', 'CF-U-36X22-DRAWER', 'CF-U-46X24', 'CF-U-46X24-DRAWER', 'CF-U-58X28', 'CF-U-58X28-DRAWER'],
-    'Console Tables': ['CN-U-46X14', 'CN-U-58X14'],
-    'Desks': ['D-HP-36X22', 'D-HP-36X22-DRAWER', 'D-HP-46X24', 'D-HP-46X24-DRAWER', 'D-HP-58X28', 'D-HP-58X28-DRAWER',
-             'D-SSB-46X24', 'D-SSB-46X24-DRAWER', 'D-SSB-58X28', 'D-SSB-58X28-DRAWER',
-             'D-SSW-46X24', 'D-SSW-46X24-DRAWER', 'D-SSW-58X28', 'D-SSW-58X28-DRAWER',
-             'D-U-36X22', 'D-U-36X22-DRAWER', 'D-U-46X24', 'D-U-46X24-DRAWER', 'D-U-58X28', 'D-U-58X28-DRAWER'],
-    'Dining Tables': ['DN-U-48X36', 'DN-U-60X36', 'DN-U-72X36'],
-    'Side Tables': ['END-TABLE', 'C-TABLE'],
-    'Accessories': ['MONITOR-STAND-BK']
+    'Tabletops': ['36X22', '42X42', '46X14', '46X24', '58X14', '58X28'],
+    'Benches': ['B-DN-46X14', 'B-DN-58X14', 'B-U-46X14', 'B-U-58X14'],
+    'Coffee Tables': ['CF-SP-42X42', 'CF-U-36X22', 'CF-U-36X22-2C-TABLE', 'CF-U-36X22-C-TABLE', 'CF-U-36X22-DRAWER', 
+                     'CF-U-46X24', 'CF-U-46X24-2C-TABLE', 'CF-U-46X24-C-TABLE', 'CF-U-46X24-DRAWER', 
+                     'CF-U-58X28', 'CF-U-58X28-2C-TABLE', 'CF-U-58X28-C-TABLE', 'CF-U-58X28-DRAWER'],
+    'Console Tables': ['CN-U-46X14', 'CN-U-46X14-DRAWER', 'CN-U-58X14', 'CN-U-58X14-DRAWER'],
+    'Desks': ['D-HP-36X22', 'D-HP-36X22-DRAWER', 'D-HP-36X22-KEYBOARD-TRAY', 
+             'D-HP-46X24', 'D-HP-46X24-DRAWER', 'D-HP-46X24-KEYBOARD-TRAY',
+             'D-HP-58X28', 'D-HP-58X28-DRAWER', 'D-HP-58X28-KEYBOARD-TRAY',
+             'D-SSB-46X24', 'D-SSB-46X24-DRAWER', 'D-SSB-46X24-KEYBOARD-TRAY', 
+             'D-SSB-58X28', 'D-SSB-58X28-DRAWER', 'D-SSB-58X28-KEYBOARD-TRAY',
+             'D-SSW-46X24', 'D-SSW-46X24-DRAWER', 'D-SSW-46X24-KEYBOARD-TRAY', 
+             'D-SSW-58X28', 'D-SSW-58X28-DRAWER', 'D-SSW-58X28-KEYBOARD-TRAY',
+             'D-U-36X22', 'D-U-36X22-DRAWER', 'D-U-36X22-KEYBOARD-TRAY', 
+             'D-U-46X24', 'D-U-46X24-DRAWER', 'D-U-46X24-KEYBOARD-TRAY',
+             'D-U-58X28', 'D-U-58X28-DRAWER', 'D-U-58X28-KEYBOARD-TRAY'],
+    'Dining Tables': ['DN-U-48X36', 'DN-U-60X36', 'DN-U-60X36-2B-DN-46X14', 'DN-U-60X36-B-DN-46X14', 
+                     'DN-U-72X36', 'DN-U-72X36-2B-DN-58X14', 'DN-U-72X36-B-DN-58X14'],
+    'Side Tables': ['END-TABLE', 'END-X-TABLE', 'C-TABLE'],
+    'Chairs': ['CHAIR-WARMS', 'CHAIR-WOARMS'],
+    'Shelves': ['18X7-SHELF', '30X7-SHELF', '42X8-SHELF', '54X8-SHELF'],
+    'Accessories': ['MONITOR-STAND-BK', 'MONITOR-STAND-WT', 'KEYBOARD-TRAY', 'WHEELS', 'DRAWER']
 };
 
 // Product catalog with names
 const productCatalog = {
+    // Tabletops
+    '36X22': { name: '36X22 Tabletop', retailPrice: 179.99, productCost: 92.33, smallParcelShipping: 30.00 },
+    '42X42': { name: '42X42 Tabletop', retailPrice: 449.99, productCost: 282.87, smallParcelShipping: 65.00 },
+    '46X14': { name: '46X14 Tabletop', retailPrice: 149.99, productCost: 78.50, smallParcelShipping: 25.00 },
+    '46X24': { name: '46X24 Tabletop', retailPrice: 239.99, productCost: 128.12, smallParcelShipping: 40.00 },
+    '58X14': { name: '58X14 Tabletop', retailPrice: 209.99, productCost: 110.50, smallParcelShipping: 35.00 },
+    '58X28': { name: '58X28 Tabletop', retailPrice: 359.99, productCost: 198.45, smallParcelShipping: 60.00 },
+    
+    // Shelves
+    '18X7-SHELF': { name: '18X7 Shelf', retailPrice: 59.99, productCost: 35.48, smallParcelShipping: 12.00 },
+    '30X7-SHELF': { name: '30X7 Shelf', retailPrice: 89.99, productCost: 55.67, smallParcelShipping: 20.00 },
+    '42X8-SHELF': { name: '42X8 Shelf', retailPrice: 119.99, productCost: 76.92, smallParcelShipping: 25.00 },
+    '54X8-SHELF': { name: '54X8 Shelf', retailPrice: 119.99, productCost: 96.42, smallParcelShipping: 25.00 },
+    
+    // Benches
     'B-DN-46X14': { name: 'Bench DN 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00 },
     'B-DN-58X14': { name: 'Bench DN 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00 },
+    'B-U-46X14': { name: 'Bench U 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00 },
+    'B-U-58X14': { name: 'Bench U 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00 },
+    
+    // Side Tables
     'C-TABLE': { name: 'C Table', retailPrice: 149.99, productCost: 89.39, smallParcelShipping: 30.00 },
+    'END-TABLE': { name: 'End Table', retailPrice: 119.99, productCost: 69.73, smallParcelShipping: 25.00 },
+    'END-X-TABLE': { name: 'End X Table', retailPrice: 209.99, productCost: 122.56, smallParcelShipping: 40.00 },
+    
+    // Coffee Tables
+    'CF-SP-42X42': { name: 'Coffee SP 42X42', retailPrice: 479.99, productCost: 303.56, smallParcelShipping: 85.00 },
     'CF-U-36X22': { name: 'Coffee U 36X22', retailPrice: 269.99, productCost: 146.17, smallParcelShipping: 40.00 },
+    'CF-U-36X22-2C-TABLE': { name: 'Coffee U 36X22 2 C-Tables', retailPrice: 599.99, productCost: 370.95, smallParcelShipping: 100.00 },
+    'CF-U-36X22-C-TABLE': { name: 'Coffee U 36X22 C-Table', retailPrice: 449.99, productCost: 258.57, smallParcelShipping: 70.00 },
     'CF-U-36X22-DRAWER': { name: 'Coffee U 36X22 Drawer', retailPrice: 389.99, productCost: 200.59, smallParcelShipping: 60.00 },
     'CF-U-46X24': { name: 'Coffee U 46X24', retailPrice: 329.99, productCost: 175.84, smallParcelShipping: 45.00 },
+    'CF-U-46X24-2C-TABLE': { name: 'Coffee U 46X24 2 C-Tables', retailPrice: 659.99, productCost: 400.63, smallParcelShipping: 105.00 },
+    'CF-U-46X24-C-TABLE': { name: 'Coffee U 46X24 C-Table', retailPrice: 509.99, productCost: 288.24, smallParcelShipping: 75.00 },
     'CF-U-46X24-DRAWER': { name: 'Coffee U 46X24 Drawer', retailPrice: 449.99, productCost: 230.27, smallParcelShipping: 65.00 },
     'CF-U-58X28': { name: 'Coffee U 58X28', retailPrice: 479.99, productCost: 240.96, smallParcelShipping: 70.00 },
+    'CF-U-58X28-2C-TABLE': { name: 'Coffee U 58X28 2 C-Tables', retailPrice: 779.99, productCost: 465.75, smallParcelShipping: 130.00 },
+    'CF-U-58X28-C-TABLE': { name: 'Coffee U 58X28 C-Table', retailPrice: 629.99, productCost: 353.36, smallParcelShipping: 100.00 },
     'CF-U-58X28-DRAWER': { name: 'Coffee U 58X28 Drawer', retailPrice: 569.99, productCost: 295.39, smallParcelShipping: 90.00 },
+    
+    // Chairs
+    'CHAIR-WARMS': { name: 'Chair with Arms', retailPrice: 419.99, productCost: 264.12, smallParcelShipping: 90.00 },
+    'CHAIR-WOARMS': { name: 'Chair without Arms', retailPrice: 239.99, productCost: 146.67, smallParcelShipping: 50.00 },
+    
+    // Console Tables
     'CN-U-46X14': { name: 'Console U 46X14', retailPrice: 239.99, productCost: 130.34, smallParcelShipping: 40.00 },
+    'CN-U-46X14-DRAWER': { name: 'Console U 46X14 Drawer', retailPrice: 359.99, productCost: 184.77, smallParcelShipping: 60.00 },
     'CN-U-58X14': { name: 'Console U 58X14', retailPrice: 329.99, productCost: 170.13, smallParcelShipping: 65.00 },
-    'D-HP-36X22': { name: 'Desk HP 36X22', retailPrice: 269.99, productCost: 144.29, smallParcelShipping: 40.00 },
-    'D-HP-36X22-DRAWER': { name: 'Desk HP 36X22 Drawer', retailPrice: 389.99, productCost: 198.72, smallParcelShipping: 60.00 },
-    'D-HP-46X24': { name: 'Desk HP 46X24', retailPrice: 329.99, productCost: 173.96, smallParcelShipping: 45.00 },
-    'D-HP-46X24-DRAWER': { name: 'Desk HP 46X24 Drawer', retailPrice: 449.99, productCost: 228.39, smallParcelShipping: 65.00 },
-    'D-HP-58X28': { name: 'Desk HP 58X28', retailPrice: 449.99, productCost: 239.09, smallParcelShipping: 70.00 },
-    'D-HP-58X28-DRAWER': { name: 'Desk HP 58X28 Drawer', retailPrice: 569.99, productCost: 293.51, smallParcelShipping: 90.00 },
-    'D-SSB-46X24': { name: 'Desk SSB 46X24', retailPrice: 479.99, productCost: 244.69, smallParcelShipping: 55.00 },
-    'D-SSB-46X24-DRAWER': { name: 'Desk SSB 46X24 Drawer', retailPrice: 569.99, productCost: 299.12, smallParcelShipping: 75.00 },
-    'D-SSB-58X28': { name: 'Desk SSB 58X28', retailPrice: 599.99, productCost: 309.81, smallParcelShipping: 80.00 },
-    'D-SSB-58X28-DRAWER': { name: 'Desk SSB 58X28 Drawer', retailPrice: 689.99, productCost: 364.24, smallParcelShipping: 100.00 },
-    'D-SSW-46X24': { name: 'Desk SSW 46X24', retailPrice: 479.99, productCost: 244.69, smallParcelShipping: 55.00 },
-    'D-SSW-46X24-DRAWER': { name: 'Desk SSW 46X24 Drawer', retailPrice: 569.99, productCost: 299.12, smallParcelShipping: 75.00 },
-    'D-SSW-58X28': { name: 'Desk SSW 58X28', retailPrice: 599.99, productCost: 309.81, smallParcelShipping: 80.00 },
-    'D-SSW-58X28-DRAWER': { name: 'Desk SSW 58X28 Drawer', retailPrice: 689.99, productCost: 364.24, smallParcelShipping: 100.00 },
-    'D-U-36X22': { name: 'Desk U 36X22', retailPrice: 299.99, productCost: 154.34, smallParcelShipping: 40.00 },
-    'D-U-36X22-DRAWER': { name: 'Desk U 36X22 Drawer', retailPrice: 419.99, productCost: 208.77, smallParcelShipping: 60.00 },
-    'D-U-46X24': { name: 'Desk U 46X24', retailPrice: 359.99, productCost: 184.02, smallParcelShipping: 45.00 },
-    'D-U-46X24-DRAWER': { name: 'Desk U 46X24 Drawer', retailPrice: 449.99, productCost: 238.44, smallParcelShipping: 65.00 },
-    'D-U-58X28': { name: 'Desk U 58X28', retailPrice: 479.99, productCost: 249.14, smallParcelShipping: 70.00 },
-    'D-U-58X28-DRAWER': { name: 'Desk U 58X28 Drawer', retailPrice: 569.99, productCost: 303.56, smallParcelShipping: 90.00 },
+    'CN-U-58X14-DRAWER': { name: 'Console U 58X14 Drawer', retailPrice: 419.99, productCost: 224.56, smallParcelShipping: 85.00 },
+    
+    // Desks
+    'D-HP-36X22': { name: 'Desk HP 36X22', retailPrice: 269.99, productCost: 146.17, smallParcelShipping: 40.00 },
+    'D-HP-36X22-DRAWER': { name: 'Desk HP 36X22 Drawer', retailPrice: 389.99, productCost: 200.59, smallParcelShipping: 60.00 },
+    'D-HP-36X22-KEYBOARD-TRAY': { name: 'Desk HP 36X22 Keyboard Tray', retailPrice: 389.99, productCost: 222.38, smallParcelShipping: 65.00 },
+    'D-HP-46X24': { name: 'Desk HP 46X24', retailPrice: 329.99, productCost: 175.84, smallParcelShipping: 45.00 },
+    'D-HP-46X24-DRAWER': { name: 'Desk HP 46X24 Drawer', retailPrice: 449.99, productCost: 230.27, smallParcelShipping: 65.00 },
+    'D-HP-46X24-KEYBOARD-TRAY': { name: 'Desk HP 46X24 Keyboard Tray', retailPrice: 449.99, productCost: 252.05, smallParcelShipping: 70.00 },
+    'D-HP-58X28': { name: 'Desk HP 58X28', retailPrice: 449.99, productCost: 240.96, smallParcelShipping: 70.00 },
+    'D-HP-58X28-DRAWER': { name: 'Desk HP 58X28 Drawer', retailPrice: 569.99, productCost: 295.39, smallParcelShipping: 90.00 },
+    'D-HP-58X28-KEYBOARD-TRAY': { name: 'Desk HP 58X28 Keyboard Tray', retailPrice: 569.99, productCost: 317.17, smallParcelShipping: 95.00 },
+    'D-SSB-46X24': { name: 'Desk SSB 46X24', retailPrice: 479.99, productCost: 251.75, smallParcelShipping: 70.00 },
+    'D-SSB-46X24-DRAWER': { name: 'Desk SSB 46X24 Drawer', retailPrice: 569.99, productCost: 306.17, smallParcelShipping: 90.00 },
+    'D-SSB-46X24-KEYBOARD-TRAY': { name: 'Desk SSB 46X24 Keyboard Tray', retailPrice: 569.99, productCost: 327.96, smallParcelShipping: 95.00 },
+    'D-SSB-58X28': { name: 'Desk SSB 58X28', retailPrice: 599.99, productCost: 316.86, smallParcelShipping: 95.00 },
+    'D-SSB-58X28-DRAWER': { name: 'Desk SSB 58X28 Drawer', retailPrice: 689.99, productCost: 371.29, smallParcelShipping: 115.00 },
+    'D-SSB-58X28-KEYBOARD-TRAY': { name: 'Desk SSB 58X28 Keyboard Tray', retailPrice: 689.99, productCost: 393.07, smallParcelShipping: 120.00 },
+    'D-SSW-46X24': { name: 'Desk SSW 46X24', retailPrice: 479.99, productCost: 251.75, smallParcelShipping: 70.00 },
+    'D-SSW-46X24-DRAWER': { name: 'Desk SSW 46X24 Drawer', retailPrice: 569.99, productCost: 306.17, smallParcelShipping: 90.00 },
+    'D-SSW-46X24-KEYBOARD-TRAY': { name: 'Desk SSW 46X24 Keyboard Tray', retailPrice: 569.99, productCost: 327.96, smallParcelShipping: 95.00 },
+    'D-SSW-58X28': { name: 'Desk SSW 58X28', retailPrice: 599.99, productCost: 316.86, smallParcelShipping: 95.00 },
+    'D-SSW-58X28-DRAWER': { name: 'Desk SSW 58X28 Drawer', retailPrice: 689.99, productCost: 371.29, smallParcelShipping: 115.00 },
+    'D-SSW-58X28-KEYBOARD-TRAY': { name: 'Desk SSW 58X28 Keyboard Tray', retailPrice: 689.99, productCost: 393.07, smallParcelShipping: 120.00 },
+    'D-U-36X22': { name: 'Desk U 36X22', retailPrice: 299.99, productCost: 164.71, smallParcelShipping: 50.00 },
+    'D-U-36X22-DRAWER': { name: 'Desk U 36X22 Drawer', retailPrice: 419.99, productCost: 219.13, smallParcelShipping: 70.00 },
+    'D-U-36X22-KEYBOARD-TRAY': { name: 'Desk U 36X22 Keyboard Tray', retailPrice: 419.99, productCost: 240.92, smallParcelShipping: 75.00 },
+    'D-U-46X24': { name: 'Desk U 46X24', retailPrice: 359.99, productCost: 194.38, smallParcelShipping: 55.00 },
+    'D-U-46X24-DRAWER': { name: 'Desk U 46X24 Drawer', retailPrice: 449.99, productCost: 248.81, smallParcelShipping: 75.00 },
+    'D-U-46X24-KEYBOARD-TRAY': { name: 'Desk U 46X24 Keyboard Tray', retailPrice: 449.99, productCost: 270.59, smallParcelShipping: 80.00 },
+    'D-U-58X28': { name: 'Desk U 58X28', retailPrice: 479.99, productCost: 259.50, smallParcelShipping: 80.00 },
+    'D-U-58X28-DRAWER': { name: 'Desk U 58X28 Drawer', retailPrice: 569.99, productCost: 313.93, smallParcelShipping: 100.00 },
+    'D-U-58X28-KEYBOARD-TRAY': { name: 'Desk U 58X28 Keyboard Tray', retailPrice: 569.99, productCost: 335.71, smallParcelShipping: 105.00 },
+    
+    // Dining Tables
     'DN-U-48X36': { name: 'Dining U 48X36', retailPrice: 539.99, productCost: 283.56, smallParcelShipping: 80.00 },
     'DN-U-60X36': { name: 'Dining U 60X36', retailPrice: 599.99, productCost: 323.71, smallParcelShipping: 85.00 },
+    'DN-U-60X36-2B-DN-46X14': { name: 'Dining U 60X36 2 Benches DN 46X14', retailPrice: 1049.99, productCost: 566.59, smallParcelShipping: 165.00 },
+    'DN-U-60X36-B-DN-46X14': { name: 'Dining U 60X36 Bench DN 46X14', retailPrice: 839.99, productCost: 445.15, smallParcelShipping: 125.00 },
     'DN-U-72X36': { name: 'Dining U 72X36', retailPrice: 659.99, productCost: 362.02, smallParcelShipping: 90.00 },
-    'END-TABLE': { name: 'End Table', retailPrice: 119.99, productCost: 69.73, smallParcelShipping: 25.00 },
-    'MONITOR-STAND-BK': { name: 'Monitor Stand Black', retailPrice: 119.99, productCost: 65.33, smallParcelShipping: 20.00 }
+    'DN-U-72X36-2B-DN-58X14': { name: 'Dining U 72X36 2 Benches DN 58X14', retailPrice: 1259.99, productCost: 684.48, smallParcelShipping: 220.00 },
+    'DN-U-72X36-B-DN-58X14': { name: 'Dining U 72X36 Bench DN 58X14', retailPrice: 959.99, productCost: 523.25, smallParcelShipping: 155.00 },
+    
+    // Accessories
+    'KEYBOARD-TRAY': { name: 'Keyboard Tray', retailPrice: 119.99, productCost: 76.21, smallParcelShipping: 25.00 },
+    'MONITOR-STAND-BK': { name: 'Monitor Stand Black', retailPrice: 119.99, productCost: 65.33, smallParcelShipping: 20.00 },
+    'MONITOR-STAND-WT': { name: 'Monitor Stand White', retailPrice: 119.99, productCost: 65.33, smallParcelShipping: 20.00 },
+    'WHEELS': { name: 'Wheels', retailPrice: 29.99, productCost: 17.56, smallParcelShipping: 7.00 },
+    'DRAWER': { name: 'Drawer', retailPrice: 119.99, productCost: 54.43, smallParcelShipping: 20.00 }
 };
 
 // Component data with actual volumes from pallet data and weights
@@ -65,6 +138,7 @@ const componentData = {
     '36X22': { unitsPerPallet: 36, volume: 45251, palletVolume: 1629029, weight: 26.65 },
     '46X24': { unitsPerPallet: 18, volume: 61380, palletVolume: 1104837, weight: 35.75 },
     '58X28': { unitsPerPallet: 18, volume: 90376, palletVolume: 1626768, weight: 54 },
+    '42X42': { unitsPerPallet: 18, volume: 97606, palletVolume: 1756909, weight: 52.8 },
     '48X36': { unitsPerPallet: 18, volume: 91936, palletVolume: 1654853, weight: 57.6 },
     '60X36': { unitsPerPallet: 18, volume: 113365, palletVolume: 2040570, weight: 78 },
     '72X36': { unitsPerPallet: 18, volume: 133066, palletVolume: 2395181, weight: 80 },
@@ -84,7 +158,20 @@ const componentData = {
     'C-TABLE': { unitsPerPallet: 12, volume: 144040, palletVolume: 1728480, weight: 14.575 },
     'DRAWER': { unitsPerPallet: 54, volume: 37945, palletVolume: 2049024, weight: 8.74 },
     'END-TABLE': { unitsPerPallet: 60, volume: 30470, palletVolume: 1828200, weight: 15.695 },
-    'MONITOR-STAND-BK': { unitsPerPallet: 32, volume: 55082, palletVolume: 1762625, weight: 10.95 }
+    'MONITOR-STAND-BK': { unitsPerPallet: 32, volume: 55082, palletVolume: 1762625, weight: 10.95 },
+    
+    // New components
+    'CF-SP': { unitsPerPallet: 14, volume: 118162, palletVolume: 1654268, weight: 20.01 },
+    'MONITOR-STAND-WT': { unitsPerPallet: 32, volume: 55082, palletVolume: 1762625, weight: 10.95 },
+    'KEYBOARD-TRAY': { unitsPerPallet: 54, volume: 37522, palletVolume: 2026203, weight: 6.35 },
+    'WHEELS': { unitsPerPallet: 400, volume: 3985, palletVolume: 1593900, weight: 0.67 },
+    '18X7-SHELF': { unitsPerPallet: 96, volume: 16301, palletVolume: 1564875, weight: 2.76 },
+    '30X7-SHELF': { unitsPerPallet: 60, volume: 24475, palletVolume: 1468500, weight: 4.14 },
+    '42X8-SHELF': { unitsPerPallet: 48, volume: 35948, palletVolume: 1725500, weight: 6.09 },
+    '54X8-SHELF': { unitsPerPallet: 18, volume: 91936, palletVolume: 1654853, weight: 15.57 },
+    'CHAIR-WARMS': { unitsPerPallet: 1, volume: 259920, palletVolume: 259920, weight: 44.02 },
+    'CHAIR-WOARMS': { unitsPerPallet: 1, volume: 196800, palletVolume: 196800, weight: 33.33 },
+    'END-X-TABLE': { unitsPerPallet: 1, volume: 144755, palletVolume: 144755, weight: 24.51 }
 };
 
 // Average pallet volume for freight calculation (cubic cm)
@@ -98,6 +185,14 @@ const warehouses = {
 
 // Map SKUs to their components
 const skuComponents = {
+    // Tabletops (single component)
+    '36X22': ['36X22'],
+    '42X42': ['42X42'],
+    '46X14': ['46X14'],
+    '46X24': ['46X24'],
+    '58X14': ['58X14'],
+    '58X28': ['58X28'],
+    
     'B-DN-46X14': ['B-DN', '46X14'],
     'B-DN-58X14': ['B-DN', '58X14'],
     'C-TABLE': ['C-TABLE'],
@@ -133,7 +228,46 @@ const skuComponents = {
     'DN-U-60X36': ['DN-U', '60X36'],
     'DN-U-72X36': ['DN-U', '72X36'],
     'END-TABLE': ['END-TABLE'],
-    'MONITOR-STAND-BK': ['MONITOR-STAND-BK']
+    'MONITOR-STAND-BK': ['MONITOR-STAND-BK'],
+    
+    // New SKUs
+    'B-U': ['B-U'],
+    'B-U-46X14': ['B-U', '46X14'],
+    'B-U-58X14': ['B-U', '58X14'],
+    'CF-SP-42X42': ['CF-SP', '42X42'],
+    'CF-U-36X22-2C-TABLE': ['CF-U', '36X22', 'C-TABLE', 'C-TABLE'],
+    'CF-U-36X22-C-TABLE': ['CF-U', '36X22', 'C-TABLE'],
+    'CF-U-46X24-2C-TABLE': ['CF-U', '46X24', 'C-TABLE', 'C-TABLE'],
+    'CF-U-46X24-C-TABLE': ['CF-U', '46X24', 'C-TABLE'],
+    'CF-U-58X28-2C-TABLE': ['CF-U', '58X28', 'C-TABLE', 'C-TABLE'],
+    'CF-U-58X28-C-TABLE': ['CF-U', '58X28', 'C-TABLE'],
+    'CN-U-46X14-DRAWER': ['CN-U', '46X14', 'DRAWER'],
+    'CN-U-58X14-DRAWER': ['CN-U', '58X14', 'DRAWER'],
+    'D-HP-36X22-KEYBOARD-TRAY': ['D-HP', '36X22', 'KEYBOARD-TRAY'],
+    'D-HP-46X24-KEYBOARD-TRAY': ['D-HP', '46X24', 'KEYBOARD-TRAY'],
+    'D-HP-58X28-KEYBOARD-TRAY': ['D-HP', '58X28', 'KEYBOARD-TRAY'],
+    'D-SSB-46X24-KEYBOARD-TRAY': ['D-SSB', '46X24', 'KEYBOARD-TRAY'],
+    'D-SSB-58X28-KEYBOARD-TRAY': ['D-SSB', '58X28', 'KEYBOARD-TRAY'],
+    'D-SSW-46X24-KEYBOARD-TRAY': ['D-SSW', '46X24', 'KEYBOARD-TRAY'],
+    'D-SSW-58X28-KEYBOARD-TRAY': ['D-SSW', '58X28', 'KEYBOARD-TRAY'],
+    'D-U-36X22-KEYBOARD-TRAY': ['D-U', '36X22', 'KEYBOARD-TRAY'],
+    'D-U-46X24-KEYBOARD-TRAY': ['D-U', '46X24', 'KEYBOARD-TRAY'],
+    'D-U-58X28-KEYBOARD-TRAY': ['D-U', '58X28', 'KEYBOARD-TRAY'],
+    'DN-U-60X36-2B-DN-46X14': ['DN-U', '60X36', 'B-DN', 'B-DN', '46X14', '46X14'],
+    'DN-U-60X36-B-DN-46X14': ['DN-U', '60X36', 'B-DN', '46X14'],
+    'DN-U-72X36-2B-DN-58X14': ['DN-U', '72X36', 'B-DN', 'B-DN', '58X14', '58X14'],
+    'DN-U-72X36-B-DN-58X14': ['DN-U', '72X36', 'B-DN', '58X14'],
+    'END-X-TABLE': ['END-X-TABLE'],
+    'MONITOR-STAND-WT': ['MONITOR-STAND-WT'],
+    'KEYBOARD-TRAY': ['KEYBOARD-TRAY'],
+    'WHEELS': ['WHEELS'],
+    'DRAWER': ['DRAWER'],
+    'CHAIR-WARMS': ['CHAIR-WARMS'],
+    'CHAIR-WOARMS': ['CHAIR-WOARMS'],
+    '18X7-SHELF': ['18X7-SHELF'],
+    '30X7-SHELF': ['30X7-SHELF'],
+    '42X8-SHELF': ['42X8-SHELF'],
+    '54X8-SHELF': ['54X8-SHELF']
 };
 
 // Configuration
@@ -268,7 +402,7 @@ async function fetchFreightQuote(destinationZip) {
         });
         } catch (fetchError) {
             // If proxy server is not running, use simulation
-            console.warn('Proxy server not available, using simulated quote');
+            console.warn('Proxy server error:', fetchError.message);
             
             // Simulate a realistic freight quote
             const baseRate = 3.50; // $ per mile
@@ -284,7 +418,7 @@ async function fetchFreightQuote(destinationZip) {
                     success: true,
                     cheapest: {
                         total_cost: Math.max(simulatedTotal, config.minFreightCost),
-                        carrier_name: 'Simulated Quote',
+                        carrier_name: 'Estimated Quote (API Key Required)',
                         transit_days: '3-5'
                     }
                 })
@@ -299,7 +433,27 @@ async function fetchFreightQuote(destinationZip) {
         const data = await response.json();
         
         if (!data.success || !data.cheapest) {
-            throw new Error(data.error || 'No freight rates available');
+            // If API fails, use simulated quote
+            const baseRate = 3.50;
+            const estimatedMiles = warehouseKey === 'TN' ? 800 : 1200;
+            const weightCharge = Math.ceil(totalWeight / 100) * baseRate * estimatedMiles / 100;
+            const accessorials = 180;
+            const simulatedTotal = weightCharge + accessorials;
+            
+            // Check for specific error messages
+            let errorMessage = 'Estimated Quote';
+            if (data.error && data.error.includes('Unverified account')) {
+                errorMessage = 'Estimated Quote (FreightView Account Verification Required)';
+            } else if (data.error) {
+                errorMessage = 'Estimated Quote (API Error)';
+            }
+            
+            data.success = true;
+            data.cheapest = {
+                total_cost: Math.max(simulatedTotal, config.minFreightCost),
+                carrier_name: errorMessage,
+                transit_days: '3-5'
+            };
         }
         
         // Use the cheapest rate from our proxy
