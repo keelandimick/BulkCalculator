@@ -55,9 +55,9 @@ const productCatalog = {
     
     // Benches
     'B-DN-46X14': { name: 'Bench DN 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00, description: 'Classic 46" dining-height bench with sturdy dowel legs perfect for dining tables or entryways. Seats 2-3 people comfortably and pairs beautifully with matching dining tables.' },
-    'B-DN-58X14': { name: 'Bench DN 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00, description: 'Extended 58" dining-height bench ideal for larger families or commercial settings. The longer length accommodates 3-4 people while maintaining stability with reinforced dowel leg construction.' },
+    'B-DN-58X14': { name: 'Bench DN 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00, description: 'Extended 58" dining-height bench ideal for larger families or commercial settings. The longer length accommodates 3 people comfortably while maintaining stability with reinforced dowel leg construction.' },
     'B-U-46X14': { name: 'Bench U 46X14', retailPrice: 239.99, productCost: 121.44, smallParcelShipping: 40.00, description: 'Modern 46" bench featuring sleek U-shaped metal legs for contemporary spaces. Perfect for dining rooms, entryways, or bedroom foot-of-bed placement with versatile styling.' },
-    'B-U-58X14': { name: 'Bench U 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00, description: 'Spacious 58" bench with minimalist U-frame design offering seating for 3-4 people. The industrial-modern aesthetic complements both residential and commercial interiors.' },
+    'B-U-58X14': { name: 'Bench U 58X14', retailPrice: 299.99, productCost: 161.23, smallParcelShipping: 65.00, description: 'Spacious 58" bench with minimalist U-frame design offering seating for 3 people comfortably. The industrial-modern aesthetic complements both residential and commercial interiors.' },
     
     // Side Tables
     'C-TABLE': { name: 'C Table', retailPrice: 149.99, productCost: 89.39, smallParcelShipping: 30.00, description: 'Innovative C-shaped side table that slides under sofas and beds for convenient surface access. Perfect for laptops, drinks, or snacks with a space-saving cantilever design.' },
@@ -543,6 +543,17 @@ function calculateFreightCost(sku, quantity) {
     };
 }
 
+// Function to send height to parent window
+function sendHeightToParent() {
+    const height = document.documentElement.scrollHeight;
+    if (window.parent !== window) {
+        window.parent.postMessage({
+            height: height,
+            source: 'bulkCalculator'
+        }, '*');
+    }
+}
+
 // Initialize the calculator
 document.addEventListener('DOMContentLoaded', function() {
     // Add product selector to the page
@@ -554,6 +565,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up event listener for quantity
     document.getElementById('quantity').addEventListener('input', calculatePricing);
+    
+    // Send initial height
+    setTimeout(sendHeightToParent, 100);
+    
+    // Monitor for content changes
+    const observer = new MutationObserver(() => {
+        sendHeightToParent();
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true
+    });
 });
 
 function addProductSelector() {
@@ -844,12 +869,23 @@ function updateProductImage(sku) {
     
     // Check if this is a dining or bench image and adjust width
     if (mappedImage === 'DINING U' || mappedImage === 'DINING U BENCH' || 
-        mappedImage === 'BENCH DN' || mappedImage === 'BENCH U') {
+        mappedImage === 'BENCH DN') {
         imageWrapper.style.width = '400px';
+        imageWrapper.style.maxWidth = '90%';
+    } else if (mappedImage === 'BENCH U') {
+        imageWrapper.style.width = '500px';
         imageWrapper.style.maxWidth = '90%';
     } else {
         imageWrapper.style.width = '300px';
         imageWrapper.style.maxWidth = 'none';
+    }
+    
+    // Special styling for BENCH U to crop top pixels
+    if (mappedImage === 'BENCH U') {
+        productImage.style.marginTop = '-3px';
+        imageWrapper.style.overflow = 'hidden';
+    } else {
+        productImage.style.marginTop = '0';
     }
     
     // Set image source - images should be named by SKU or mapping
