@@ -4,12 +4,13 @@ A B2B bulk pricing calculator for furniture e-commerce that compares retail vs w
 
 ## Features
 
-- 📊 **Real-time price comparison** between retail and bulk orders
-- 🚚 **Smart freight calculation** based on pallet capacity
-- 💰 **Tiered discount structure** (10-30% based on quantity)
-- 📦 **Multi-component product support** (handles furniture with multiple boxes)
-- 📈 **Break-even analysis** showing when bulk savings begin
-- 🎯 **Product catalog** with 37+ furniture SKUs
+- 📊 **Price-based discount tiers** (10-20% based on order value)
+- 🚚 **Real-time freight quotes** via Uber Freight API integration
+- 📧 **Automated order notifications** via EmailJS
+- 📦 **Multi-component product support** for furniture with multiple boxes
+- 📈 **Side-by-side pricing comparison** showing retail vs bulk savings
+- 📑 **Integrated product catalog** with PDF viewer and download
+- 🎯 **37+ furniture SKUs** with accurate dimensions and weights
 
 ## Live Demo
 
@@ -17,109 +18,110 @@ Visit the calculator at: [https://keelandimick.github.io/BulkCalculator/web/bulk
 
 ## How It Works
 
-1. **Select a product** from the dropdown menu
-2. **Enter quantity** to see instant pricing comparison
-3. **View side-by-side** retail vs bulk pricing
-4. **See detailed breakdowns** including shipping/freight costs
-5. **Identify savings** with color-coded indicators
+1. **Select a product** from the dropdown catalog
+2. **Enter quantity** (minimum 100 units for bulk pricing)
+3. **Enter delivery ZIP code** for freight calculation
+4. **View instant comparison** of retail vs bulk pricing
+5. **Submit order request** to receive email notification
 
-## Discount Tiers
+## Pricing Structure
 
-- 1-49 units: 10% off
-- 50-99 units: 10% off  
-- 100-199 units: 15% off
-- 200-299 units: 20% off
-- 300-499 units: 25% off
-- 500+ units: 30% off
+Price-based discount tiers:
+- **$0 - $5,000**: 10% off retail
+- **$5,001 - $10,000**: 15% off retail  
+- **$10,001+**: 20% off retail
 
-## Local Setup
+*Note: These are example tiers and can be customized*
 
-1. Clone the repository
-2. Open `web/bulk_pricing_calculator.html` in a web browser
-3. Or use the Mac launcher: `./B2B_Calculator.command`
+## Technical Stack
 
-## Integration
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Email Service**: EmailJS for order notifications
+- **Freight API**: Uber Freight (via Node.js proxy)
+- **Hosting**: GitHub Pages
+- **Product Catalog**: Embedded PDF viewer
 
-To integrate into your website:
-- Embed as an iframe
-- Or copy the web folder contents to your site
-- No server-side code required - runs entirely in the browser
-
-## Files Structure
+## Project Structure
 
 ```
-├── web/
+BulkCalculator/
+├── web/                           # Frontend files
 │   ├── bulk_pricing_calculator.html    # Main calculator page
-│   ├── bulk_pricing_calculator_v2.js   # Calculator logic
-│   ├── BulkPricingCalculator.jsx      # React component version
-│   └── INTEGRATION_GUIDE.md            # Detailed integration instructions
-├── scripts/
-│   ├── b2b_pricing_interactive.py      # Interactive CLI calculator
-│   ├── b2b_calculator_gui.py          # GUI version
-│   └── extract_ltl_fees.py            # Freight data extraction
-├── data/
-│   └── combined_ltl_fees.xlsx          # LTL freight data
-├── analysis/
-│   └── ltl_cost_summary.txt            # Freight cost analysis
-├── B2B_Calculator.command              # Mac OS launcher
-├── run_calculator.sh                   # Shell script launcher
-└── *.csv                              # Product catalog and shipping data
+│   ├── bulk_pricing_calculator_v3.js   # Calculator logic
+│   ├── order_email_form.html          # Order submission form
+│   ├── 2025-catalog.pdf              # Product catalog
+│   ├── ks-logo.jpg                   # Company logo
+│   └── product-images/               # Product photos
+├── server/                       # Backend proxy server
+│   ├── freight-proxy.js         # Uber Freight API proxy
+│   ├── package.json            # Node dependencies
+│   └── .env                    # API credentials (not in repo)
+└── README.md                   # This file
 ```
 
-## Data Sources
+## Setup Instructions
 
-### Product Catalog
-- `sku, sku name, cost, shipping, price.csv` - Complete product catalog with 37+ furniture SKUs
-- `sku, pallet dims, units per pallet, unit dims.csv` - Pallet configuration data
-- `order_items.csv` - Sample order data
+### Frontend Only (No Freight Quotes)
+1. Clone the repository
+2. Open `web/bulk_pricing_calculator.html` in a browser
+3. Calculator will work with simulated freight quotes
 
-### Freight Calculations
-- Based on real LTL (Less Than Load) freight data
-- Average freight cost: $361.24 per pallet
-- Dynamic calculation based on pallet capacity
+### With Real Freight Quotes
+1. Set up the Node.js proxy server:
+   ```bash
+   cd server
+   npm install
+   ```
+2. Add Uber Freight credentials to `.env`:
+   ```
+   FREIGHT_CLIENT_ID=your_client_id
+   FREIGHT_CLIENT_SECRET=your_client_secret
+   ```
+3. Deploy proxy to a hosting service (Vercel, Railway, etc.)
+4. Update `PROXY_URL` in `bulk_pricing_calculator_v3.js`
 
-## Python Scripts
+## Email Configuration
 
-### Interactive Calculator (`b2b_pricing_interactive.py`)
-```bash
-python3 scripts/b2b_pricing_interactive.py
-```
-- Command-line interface
-- Real-time price calculations
-- Detailed freight breakdown
+The calculator uses EmailJS for sending order notifications:
+- Emails are sent to configured recipients when orders are submitted
+- Customer email is set as reply-to for easy communication
+- No backend email server required
 
-### GUI Calculator (`b2b_calculator_gui.py`)
-- Desktop application with graphical interface
-- Visual price comparison
-- Export functionality
+## Customization
 
-## Development
-
-### Requirements
-- Python 3.7+ (for scripts)
-- Modern web browser (for web calculator)
-- No external dependencies for web version
-
-### Running Locally
-```bash
-# Web version
-open web/bulk_pricing_calculator.html
-
-# Python CLI version
-./run_calculator.sh
-
-# Mac app
-./B2B_Calculator.command
+### Modify Discount Tiers
+Edit the `pricingTiers` in `bulk_pricing_calculator_v3.js`:
+```javascript
+pricingTiers: [
+    { minAmount: 0, maxAmount: 5000, discount: 10 },
+    { minAmount: 5001, maxAmount: 10000, discount: 15 },
+    { minAmount: 10001, maxAmount: null, discount: 20 }
+]
 ```
 
-## Contributing
+### Add/Update Products
+Products are defined in the `products` object in `bulk_pricing_calculator_v3.js`. Each product needs:
+- SKU
+- Name
+- Retail price
+- Shipping cost
+- Warehouse locations
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Update Catalog
+Replace `web/2025-catalog.pdf` with your updated catalog file.
+
+## Browser Compatibility
+
+- Chrome (recommended)
+- Safari
+- Firefox
+- Edge
+- Mobile browsers
 
 ## License
 
-This project is proprietary software for B2B furniture pricing calculations.
+Private commercial project - all rights reserved
+
+## Support
+
+For issues or questions, contact keelandimick@gmail.com
