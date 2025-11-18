@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Your Order Request - Keelan Scott</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.1.0/dist/email.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -290,6 +291,9 @@
             ` : ''}
         `;
         
+        // Initialize EmailJS
+        emailjs.init("xwf0LlpaEm0FB96bD");
+        
         // Handle form submission
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -325,54 +329,61 @@ ${orderData.savings || ''}
 
 Customer should be contacted at ${customerEmail} to confirm this order.`;
             
-            // Submit to WordPress REST API
+            // Prepare email parameters for EmailJS
+            const templateParams = {
+                // Customer info
+                customer_name: customerName,
+                customer_email: customerEmail,
+                
+                // Order details
+                product_name: orderData.product,
+                sku: orderData.sku,
+                quantity: orderData.quantity,
+                warehouse_location: orderData.warehouseLocation,
+                price_per_unit: orderData.unitPrice,
+                subtotal: orderData.productSubtotal,
+                freight_cost: orderData.freightCost,
+                freight_carrier: orderData.freightCarrier,
+                transit_days: orderData.transitDays,
+                total_cost: orderData.totalCost,
+                customer_zip: orderData.customerZip,
+                savings: orderData.savings || 'No volume discount applied',
+                
+                // Email metadata
+                email_subject: emailSubject,
+                order_date: new Date().toLocaleString()
+            };
+            
+            // Submit via EmailJS
             try {
-                const response = await fetch('https://keelanscott.co/wp-json/keelanscott/v1/submit-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        customerName: customerName,
-                        customerEmail: customerEmail,
-                        emailSubject: emailSubject,
-                        emailBody: emailBody,
-                        orderData: orderData
-                    })
-                });
+                const response = await emailjs.send(
+                    'service_j8y571r',
+                    'template_414ramm',
+                    templateParams
+                );
                 
-                const result = await response.json();
+                console.log('Email sent successfully:', response);
                 
-                if (result.success) {
-                    // Hide form
-                    document.getElementById('formContainer').style.display = 'none';
-                    
-                    // Show success message
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('orderReference').innerHTML = `
-                        <strong>${orderData.product}</strong><br>
-                        ${orderData.quantity} units - ${orderData.totalCost}
-                    `;
-                    
-                    // Update height after showing success message
-                    setTimeout(sendHeightToParent, 100);
-                } else {
-                    throw new Error('Failed to submit order');
-                }
+                // Hide form
+                document.getElementById('formContainer').style.display = 'none';
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('orderReference').innerHTML = `
+                    <strong>${orderData.product}</strong><br>
+                    ${orderData.quantity} units - ${orderData.totalCost}
+                `;
+                
+                // Update height after showing success message
+                setTimeout(sendHeightToParent, 100);
+                
             } catch (error) {
-                // Fallback for testing or if API fails
-                console.error('Error submitting order:', error);
+                console.error('Failed to send email:', error);
+                alert('Failed to send order request. Please try again or contact us directly at keelandimick@gmail.com');
                 
-                // Still show success for demo purposes
-                setTimeout(() => {
-                    document.getElementById('formContainer').style.display = 'none';
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('orderReference').innerHTML = `
-                        <strong>${orderData.product}</strong><br>
-                        ${orderData.quantity} units - ${orderData.totalCost}
-                    `;
-                    setTimeout(sendHeightToParent, 100);
-                }, 1500);
+                // Re-enable form
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('button[type="submit"]').disabled = false;
             }
         });
         

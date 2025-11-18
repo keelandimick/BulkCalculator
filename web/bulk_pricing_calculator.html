@@ -320,6 +320,38 @@
         <button class="add-to-cart" onclick="submitOrderRequest()">Submit Order Request</button>
     </div>
 
+    <!-- Catalog Section -->
+    <div class="catalog-section" style="max-width: 750px; margin: 40px auto 20px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px;">
+        <h2 style="color: #384637; margin-bottom: 20px; text-align: center;">2025 Product Catalog</h2>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: #666; margin-bottom: 20px;">View our complete product catalog with detailed specifications and pricing information.</p>
+            
+            <!-- Download Button -->
+            <a href="2025-catalog.pdf" download="Keelan-Scott-2025-Catalog.pdf" style="display: inline-block; background-color: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; margin-bottom: 20px; font-weight: bold;">
+                Download Catalog (PDF)
+            </a>
+        </div>
+        
+        <!-- PDF Viewer -->
+        <div style="border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+            <iframe src="2025-catalog.pdf#toolbar=1&navpanes=0&scrollbar=1&view=FitH" 
+                    width="100%" 
+                    height="600" 
+                    style="border: none;">
+                <p>Your browser does not support PDF viewing. Please <a href="2025-catalog.pdf">download the catalog</a> to view it.</p>
+            </iframe>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #666; font-size: 14px;">
+                Having trouble viewing? 
+                <a href="2025-catalog.pdf" target="_blank" style="color: #dc3545;">Open in new window</a> or 
+                <a href="2025-catalog.pdf" download style="color: #dc3545;">download the PDF</a>
+            </p>
+        </div>
+    </div>
+
     <script src="bulk_pricing_calculator_v3.js"></script>
 </body>
 </html>
