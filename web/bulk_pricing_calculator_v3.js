@@ -282,11 +282,11 @@ const skuComponents = {
 const config = {
     minFreightCost: 250,  // Minimum freight charge
     
-    // Tiered pricing structure (discounts)
+    // Price-based discount structure
     pricingTiers: [
-        { minQty: 1, maxQty: 10, discount: 10 },
-        { minQty: 11, maxQty: 20, discount: 15 },
-        { minQty: 21, maxQty: null, discount: 20 }
+        { minAmount: 0, maxAmount: 5000, discount: 10 },
+        { minAmount: 5001, maxAmount: 10000, discount: 15 },
+        { minAmount: 10001, maxAmount: null, discount: 20 }
     ]
 };
 
@@ -1018,19 +1018,22 @@ function calculatePricing() {
         return;
     }
     
-    // Calculate discount based on quantity
-    let discount = 0; // No default discount, use tiers
+    // Calculate base pricing without discount
+    const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
+    const retailProductTotal = retailPriceWithoutShipping * quantity;
+    
+    // Calculate discount based on order subtotal (before discount)
+    const orderSubtotal = retailPriceWithoutShipping * quantity;
+    let discount = 0;
     for (const tier of config.pricingTiers) {
-        if (quantity >= tier.minQty && (tier.maxQty === null || quantity <= tier.maxQty)) {
+        if (orderSubtotal >= tier.minAmount && (tier.maxAmount === null || orderSubtotal <= tier.maxAmount)) {
             discount = tier.discount;
             break;
         }
     }
     
-    // Calculate pricing
-    const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
+    // Apply discount to get bulk pricing
     const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
-    const retailProductTotal = retailPriceWithoutShipping * quantity;
     const bulkProductTotal = bulkUnitPrice * quantity;
     const retailShippingTotal = productConfig.smallParcelShipping * quantity;
     const { freightCost, cubicFeet, needsQuote } = calculateFreightCost(productConfig.sku, quantity);
