@@ -173,6 +173,16 @@
         // Send height when page loads
         window.addEventListener('load', function() {
             setTimeout(sendHeightToParent, 100);
+            // Auto-scroll to top of page
+            window.scrollTo(0, 0);
+            // Also try to scroll parent window if in iframe
+            if (window.parent !== window) {
+                try {
+                    window.parent.scrollTo(0, 0);
+                } catch(e) {
+                    // Cross-origin restriction, can't scroll parent
+                }
+            }
         });
         
         // Monitor for content changes
@@ -376,6 +386,16 @@ Customer should be contacted at ${customerEmail} to confirm this order.`;
                 
                 // Update height after showing success message
                 setTimeout(sendHeightToParent, 100);
+                
+                // Scroll to top to show success message
+                window.scrollTo(0, 0);
+                if (window.parent !== window) {
+                    try {
+                        window.parent.scrollTo(0, 0);
+                    } catch(e) {
+                        // Cross-origin restriction
+                    }
+                }
                 
             } catch (error) {
                 console.error('Failed to send email:', error);
