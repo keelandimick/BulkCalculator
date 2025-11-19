@@ -1,7 +1,3 @@
-// Multi-order state management
-let multiOrderItems = [];
-let isMultiOrderMode = false;
-
 // Helper function to format currency with commas
 function formatCurrency(amount) {
     return '$' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -618,13 +614,6 @@ async function fetchFreightQuote(destinationZip) {
             originalQuote: freightQuote
         };
         
-        // Enable "Add Another Item" button now that we have a freight quote
-        const addAnotherBtn = document.getElementById('addAnotherItemBtn');
-        if (addAnotherBtn) {
-            addAnotherBtn.disabled = false;
-            addAnotherBtn.style.opacity = '1';
-            addAnotherBtn.style.cursor = 'pointer';
-        }
         
         // Recalculate pricing with new freight cost
         calculatePricing();
@@ -1168,12 +1157,6 @@ function calculatePricing() {
     // Calculate discount based on order subtotal (before discount)
     let orderSubtotal = retailPriceWithoutShipping * quantity;
     
-    // If in multi-order mode, include existing items in total for discount calculation
-    if (isMultiOrderMode && multiOrderItems.length > 0) {
-        multiOrderItems.forEach(item => {
-            orderSubtotal += item.retailPrice * item.quantity;
-        });
-    }
     
     let discount = 0;
     for (const tier of config.pricingTiers) {
@@ -1411,13 +1394,7 @@ function resetPricingDisplay() {
 }
 
 function submitOrderRequest() {
-    // If in multi-order mode, submit all items
-    if (isMultiOrderMode && multiOrderItems.length > 0) {
-        submitMultiOrder();
-        return;
-    }
-    
-    // Otherwise, submit single item
+    // Submit single item
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
     
     if (!productConfig.sku) {
@@ -1494,233 +1471,3 @@ function submitOrderRequest() {
     window.location.href = `order_email_form.html?${params.toString()}`;
 }
 
-// Multi-order functions
-function addAnotherItem() {
-    const productDropdown = document.getElementById('productSelector');
-    const quantityInput = document.getElementById('quantity');
-    const customerZipInput = document.getElementById('destinationZip');
-    
-    // Validate inputs
-    if (!productDropdown.value) {
-        alert('Please select a product');
-        return;
-    }
-    
-    const quantity = parseInt(quantityInput.value) || 0;
-    if (quantity === 0) {
-        alert('Please enter a quantity');
-        return;
-    }
-    
-    if (!customerZipInput.value) {
-        alert('Please enter a delivery ZIP code');
-        return;
-    }
-    
-    // Check if we have a freight quote
-    if (!window.lastFreightQuote) {
-        alert('Please get a freight quote first');
-        return;
-    }
-    
-    // Get current product details
-    const currentProduct = {
-        sku: productConfig.sku,
-        name: productConfig.name,
-        quantity: quantity,
-        retailPrice: productConfig.retailPrice - productConfig.smallParcelShipping,
-        unitPrice: 0, // Will be calculated with total order discount
-        discount: 0, // Will be calculated based on total
-        subtotal: 0 // Will be calculated
-    };
-    
-    // Add to multi-order
-    multiOrderItems.push(currentProduct);
-    isMultiOrderMode = true;
-    
-    // Recalculate all items with new total
-    recalculateMultiOrder();
-    
-    // Show multi-order summary
-    document.getElementById('multiOrderSummary').style.display = 'block';
-    
-    // Reset calculator for next item
-    productDropdown.value = '';
-    quantityInput.value = '';
-    updateProductImage();
-    resetPricingDisplay();
-    
-    // Keep ZIP code for convenience
-}
-
-function recalculateMultiOrder() {
-    // Calculate total order value for discount
-    let totalOrderValue = 0;
-    multiOrderItems.forEach(item => {
-        totalOrderValue += item.retailPrice * item.quantity;
-    });
-    
-    // Determine discount tier based on total
-    let orderDiscount = 0;
-    for (const tier of config.pricingTiers) {
-        if (totalOrderValue >= tier.minAmount && (tier.maxAmount === null || totalOrderValue <= tier.maxAmount)) {
-            orderDiscount = tier.discount;
-            break;
-        }
-    }
-    
-    // Apply discount to all items
-    let productsTotal = 0;
-    multiOrderItems.forEach(item => {
-        item.discount = orderDiscount;
-        item.unitPrice = item.retailPrice * (1 - orderDiscount / 100);
-        item.subtotal = item.unitPrice * item.quantity;
-        productsTotal += item.subtotal;
-    });
-    
-    // Calculate combined freight
-    let totalWeight = 0;
-    let totalCubicFeet = 0;
-    multiOrderItems.forEach(item => {
-        const weight = calculateTotalWeight(item.sku, item.quantity);
-        const { cubicFeet } = calculateFreightCost(item.sku, item.quantity);
-        totalWeight += weight;
-        totalCubicFeet += cubicFeet;
-    });
-    
-    // Get freight quote for combined shipment
-    const freightQuote = calculateFreightCostForWeight(totalWeight, totalCubicFeet);
-    
-    // Update multi-order summary display
-    updateMultiOrderDisplay(productsTotal, freightQuote.freightCost);
-}
-
-function updateMultiOrderDisplay(productsTotal, freightCost) {
-    const itemsList = document.getElementById('orderItemsList');
-    itemsList.innerHTML = '';
-    
-    multiOrderItems.forEach((item, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.style.marginBottom = '15px';
-        itemDiv.style.paddingBottom = '15px';
-        itemDiv.style.borderBottom = '1px solid #e0e0e0';
-        
-        itemDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div style="flex: 1;">
-                    <div style="font-weight: bold;">${item.name}</div>
-                    <div style="color: #666; font-size: 14px;">
-                        ${formatCurrency(item.unitPrice)} (${item.discount}% off) × ${item.quantity}
-                    </div>
-                    <div style="color: #333;">= ${formatCurrency(item.subtotal)}</div>
-                </div>
-                <button onclick="removeOrderItem(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; padding: 0 0 0 10px;">×</button>
-            </div>
-        `;
-        
-        itemsList.appendChild(itemDiv);
-    });
-    
-    // Update totals
-    document.getElementById('multiOrderProductsTotal').textContent = formatCurrency(productsTotal);
-    document.getElementById('multiOrderFreight').textContent = formatCurrency(freightCost);
-    document.getElementById('multiOrderTotal').textContent = formatCurrency(productsTotal + freightCost);
-    
-    // Update main calculator freight display if in multi-order mode
-    if (isMultiOrderMode) {
-        document.getElementById('freightCost').textContent = 'See multi-order summary →';
-    }
-}
-
-function removeOrderItem(index) {
-    multiOrderItems.splice(index, 1);
-    
-    if (multiOrderItems.length === 0) {
-        // Hide summary if no items
-        document.getElementById('multiOrderSummary').style.display = 'none';
-        isMultiOrderMode = false;
-        // Recalculate current item if any
-        calculatePricing();
-    } else {
-        recalculateMultiOrder();
-    }
-}
-
-function toggleMultiOrderSummary() {
-    document.getElementById('multiOrderSummary').style.display = 'none';
-}
-
-// Helper function for freight calculation
-function calculateFreightCostForWeight(totalWeight, totalCubicFeet) {
-    const palletsNeeded = Math.ceil(totalWeight / 1500); // Assuming 1500 lbs per pallet max
-    
-    if (window.lastFreightQuote) {
-        return {
-            freightCost: window.lastFreightQuote.total * palletsNeeded,
-            cubicFeet: totalCubicFeet
-        };
-    }
-    
-    // Fallback calculation
-    const baseCost = Math.max(totalWeight * 0.35, config.minFreightCost);
-    return {
-        freightCost: baseCost * palletsNeeded,
-        cubicFeet: totalCubicFeet
-    };
-}
-
-// Submit multi-order
-function submitMultiOrder() {
-    if (multiOrderItems.length === 0) {
-        alert('No items in order');
-        return;
-    }
-    
-    // Build order summary for email
-    let orderSummary = '';
-    let totalProducts = 0;
-    
-    multiOrderItems.forEach((item, index) => {
-        orderSummary += `\nItem ${index + 1}: ${item.name}\n`;
-        orderSummary += `- SKU: ${item.sku}\n`;
-        orderSummary += `- Quantity: ${item.quantity} units\n`;
-        orderSummary += `- Unit Price: ${formatCurrency(item.unitPrice)} (${item.discount}% off)\n`;
-        orderSummary += `- Subtotal: ${formatCurrency(item.subtotal)}\n`;
-        totalProducts += item.subtotal;
-    });
-    
-    // Get freight from display
-    const freightText = document.getElementById('multiOrderFreight').textContent;
-    const freightCost = parseFloat(freightText.replace(/[$,]/g, ''));
-    const totalCost = totalProducts + freightCost;
-    
-    // Create combined order details
-    const orderDetails = {
-        isMultiOrder: true,
-        items: multiOrderItems,
-        orderSummary: orderSummary,
-        productsTotal: formatCurrency(totalProducts),
-        freightCost: formatCurrency(freightCost),
-        freightCarrier: window.lastCarrierInfo?.name || 'Freight',
-        transitDays: window.lastCarrierInfo?.transitDays || 'N/A',
-        totalCost: formatCurrency(totalCost),
-        customerZip: document.getElementById('destinationZip').value,
-        warehouseLocation: productConfig.warehouseLocation || 'TBD'
-    };
-    
-    // Create URL parameters
-    const params = new URLSearchParams({
-        isMultiOrder: 'true',
-        orderSummary: orderSummary,
-        productsTotal: orderDetails.productsTotal,
-        freightCost: orderDetails.freightCost,
-        freightCarrier: orderDetails.freightCarrier,
-        transitDays: orderDetails.transitDays,
-        totalCost: orderDetails.totalCost,
-        customerZip: orderDetails.customerZip,
-        itemCount: multiOrderItems.length.toString()
-    });
-    
-    // Redirect to email form
-    window.location.href = `order_email_form.html?${params.toString()}`;
-}
