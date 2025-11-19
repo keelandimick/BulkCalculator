@@ -294,6 +294,106 @@ const config = {
     ]
 };
 
+// State to warehouse assignments
+const warehouseAssignments = {
+    // UT warehouse locked states
+    'CA': 'UT', 'OR': 'UT', 'WA': 'UT',
+    'UT': 'UT', 'ID': 'UT', 'NV': 'UT', 'AZ': 'UT', 
+    'CO': 'UT', 'WY': 'UT', 'NM': 'UT', 'MT': 'UT',
+    
+    // Contested states (need calculation)
+    'TX': 'CALC', 'OK': 'CALC', 'KS': 'CALC', 
+    'NE': 'CALC', 'SD': 'CALC', 'ND': 'CALC',
+    
+    // All other states default to TN
+};
+
+// Distance from warehouses to states (in miles)
+const distanceFromWarehouse = {
+    'UT': {
+        // From Salt Lake City
+        'UT': 50, 'ID': 340, 'NV': 420, 'AZ': 660, 
+        'CA': 750, 'CO': 520, 'WY': 280, 'OR': 770,
+        'WA': 830, 'NM': 610, 'MT': 480,
+        // Contested states
+        'TX': 1200, 'OK': 950, 'KS': 900,
+        'NE': 780, 'SD': 850, 'ND': 1100
+    },
+    'TN': {
+        // From Nashville - Eastern states
+        'TN': 50, 'KY': 180, 'AL': 190, 'GA': 250,
+        'MS': 210, 'AR': 340, 'LA': 470, 'FL': 650,
+        'SC': 400, 'NC': 450, 'VA': 670, 'WV': 530,
+        'OH': 380, 'IN': 290, 'IL': 470, 'MI': 530,
+        'MO': 490, 'IA': 690, 'WI': 750, 'MN': 900,
+        'PA': 880, 'NY': 1100, 'MD': 760, 'DE': 850,
+        'NJ': 960, 'CT': 1100, 'MA': 1200, 'VT': 1150,
+        'NH': 1200, 'ME': 1350, 'RI': 1150,
+        // Contested states
+        'TX': 860, 'OK': 680, 'KS': 640,
+        'NE': 840, 'SD': 1050, 'ND': 1350
+    }
+};
+
+// ZIP code to state mapping (first 3 digits)
+function getStateFromZip(zip) {
+    const prefix = parseInt(zip.substring(0, 3));
+    
+    // Comprehensive ZIP to state mapping
+    if (prefix >= 10 && prefix <= 27) return 'MA';
+    if (prefix >= 28 && prefix <= 29) return 'RI';
+    if (prefix >= 30 && prefix <= 38) return 'NH';
+    if (prefix >= 39 && prefix <= 49) return 'ME';
+    if (prefix >= 50 && prefix <= 59) return 'VT';
+    if (prefix >= 60 && prefix <= 69) return 'CT';
+    if (prefix >= 70 && prefix <= 89) return 'NJ';
+    if (prefix >= 100 && prefix <= 149) return 'NY';
+    if (prefix >= 150 && prefix <= 196) return 'PA';
+    if (prefix >= 197 && prefix <= 199) return 'DE';
+    if (prefix >= 200 && prefix <= 205) return 'DC';
+    if (prefix >= 206 && prefix <= 219) return 'MD';
+    if (prefix >= 220 && prefix <= 246) return 'VA';
+    if (prefix >= 247 && prefix <= 269) return 'WV';
+    if (prefix >= 270 && prefix <= 289) return 'NC';
+    if (prefix >= 290 && prefix <= 299) return 'SC';
+    if (prefix >= 300 && prefix <= 319) return 'GA';
+    if (prefix >= 320 && prefix <= 349) return 'FL';
+    if (prefix >= 350 && prefix <= 369) return 'AL';
+    if (prefix >= 370 && prefix <= 385) return 'TN';
+    if (prefix >= 386 && prefix <= 397) return 'MS';
+    if (prefix >= 398 && prefix <= 399) return 'GA';
+    if (prefix >= 400 && prefix <= 427) return 'KY';
+    if (prefix >= 430 && prefix <= 459) return 'OH';
+    if (prefix >= 460 && prefix <= 479) return 'IN';
+    if (prefix >= 480 && prefix <= 499) return 'MI';
+    if (prefix >= 500 && prefix <= 528) return 'IA';
+    if (prefix >= 530 && prefix <= 549) return 'WI';
+    if (prefix >= 550 && prefix <= 567) return 'MN';
+    if (prefix >= 570 && prefix <= 577) return 'SD';
+    if (prefix >= 580 && prefix <= 588) return 'ND';
+    if (prefix >= 590 && prefix <= 599) return 'MT';
+    if (prefix >= 600 && prefix <= 629) return 'IL';
+    if (prefix >= 630 && prefix <= 658) return 'MO';
+    if (prefix >= 660 && prefix <= 679) return 'KS';
+    if (prefix >= 680 && prefix <= 693) return 'NE';
+    if (prefix >= 700 && prefix <= 714) return 'LA';
+    if (prefix >= 716 && prefix <= 729) return 'AR';
+    if (prefix >= 730 && prefix <= 749) return 'OK';
+    if (prefix >= 750 && prefix <= 799) return 'TX';
+    if (prefix >= 800 && prefix <= 816) return 'CO';
+    if (prefix >= 820 && prefix <= 831) return 'WY';
+    if (prefix >= 832 && prefix <= 838) return 'ID';
+    if (prefix >= 840 && prefix <= 847) return 'UT';
+    if (prefix >= 850 && prefix <= 865) return 'AZ';
+    if (prefix >= 870 && prefix <= 884) return 'NM';
+    if (prefix >= 889 && prefix <= 898) return 'NV';
+    if (prefix >= 900 && prefix <= 961) return 'CA';
+    if (prefix >= 970 && prefix <= 979) return 'OR';
+    if (prefix >= 980 && prefix <= 994) return 'WA';
+    
+    return null; // Unknown or not supported
+}
+
 // Current product configuration
 let productConfig = {};
 
@@ -416,12 +516,26 @@ async function fetchFreightQuote(destinationZip) {
             // If proxy server is not running, use simulation
             console.warn('Proxy server error:', fetchError.message);
             
-            // Simulate a realistic freight quote
-            const baseRate = 3.50; // $ per mile
-            const estimatedMiles = warehouseKey === 'TN' ? 800 : 1200;
-            const weightCharge = Math.ceil(totalWeight / 100) * baseRate * estimatedMiles / 100;
+            // Get destination state and actual distance
+            const destState = getStateFromZip(destinationZip);
+            let estimatedMiles = 800; // Default
+            
+            if (destState && distanceFromWarehouse[warehouseKey] && distanceFromWarehouse[warehouseKey][destState]) {
+                estimatedMiles = distanceFromWarehouse[warehouseKey][destState];
+            }
+            
+            // Calculate freight based on actual distance
+            const baseRatePerPoundPerMile = 0.00015; // $0.15 per 100 lbs per mile
+            const distanceCharge = totalWeight * estimatedMiles * baseRatePerPoundPerMile;
+            const fuelSurcharge = distanceCharge * 0.25; // 25% fuel surcharge
             const accessorials = 180; // Liftgate + inside delivery
-            const simulatedTotal = weightCharge + accessorials;
+            const simulatedTotal = distanceCharge + fuelSurcharge + accessorials;
+            
+            // Transit days based on distance
+            let transitDays = '3-5';
+            if (estimatedMiles < 500) transitDays = '2-3';
+            else if (estimatedMiles < 1000) transitDays = '3-4';
+            else if (estimatedMiles > 1500) transitDays = '5-7';
             
             // Create a simulated response
             response = {
@@ -430,8 +544,8 @@ async function fetchFreightQuote(destinationZip) {
                     success: true,
                     cheapest: {
                         total_cost: Math.max(simulatedTotal, config.minFreightCost),
-                        carrier_name: 'Estimated Quote (API Key Required)',
-                        transit_days: '3-5'
+                        carrier_name: `Estimated Quote (${estimatedMiles} miles)`,
+                        transit_days: transitDays
                     }
                 })
             };
@@ -446,11 +560,18 @@ async function fetchFreightQuote(destinationZip) {
         
         if (!data.success || !data.cheapest) {
             // If API fails, use simulated quote
-            const baseRate = 3.50;
-            const estimatedMiles = warehouseKey === 'TN' ? 800 : 1200;
-            const weightCharge = Math.ceil(totalWeight / 100) * baseRate * estimatedMiles / 100;
+            const destState = getStateFromZip(destinationZip);
+            let estimatedMiles = 800; // Default
+            
+            if (destState && distanceFromWarehouse[warehouseKey] && distanceFromWarehouse[warehouseKey][destState]) {
+                estimatedMiles = distanceFromWarehouse[warehouseKey][destState];
+            }
+            
+            const baseRatePerPoundPerMile = 0.00015;
+            const distanceCharge = totalWeight * estimatedMiles * baseRatePerPoundPerMile;
+            const fuelSurcharge = distanceCharge * 0.25;
             const accessorials = 180;
-            const simulatedTotal = weightCharge + accessorials;
+            const simulatedTotal = distanceCharge + fuelSurcharge + accessorials;
             
             // Check for specific error messages
             let errorMessage = 'Estimated Quote';
@@ -486,6 +607,14 @@ async function fetchFreightQuote(destinationZip) {
             transitDays: transitDays,
             originalQuote: freightQuote
         };
+        
+        // Enable "Add Another Item" button now that we have a freight quote
+        const addAnotherBtn = document.getElementById('addAnotherItemBtn');
+        if (addAnotherBtn) {
+            addAnotherBtn.disabled = false;
+            addAnotherBtn.style.opacity = '1';
+            addAnotherBtn.style.cursor = 'pointer';
+        }
         
         // Recalculate pricing with new freight cost
         calculatePricing();
@@ -1359,7 +1488,7 @@ function submitOrderRequest() {
 function addAnotherItem() {
     const productDropdown = document.getElementById('productDropdown');
     const quantityInput = document.getElementById('quantity');
-    const customerZipInput = document.getElementById('customerZip');
+    const customerZipInput = document.getElementById('destinationZip');
     
     // Validate inputs
     if (!productDropdown.value) {
@@ -1375,6 +1504,12 @@ function addAnotherItem() {
     
     if (!customerZipInput.value) {
         alert('Please enter a delivery ZIP code');
+        return;
+    }
+    
+    // Check if we have a freight quote
+    if (!window.lastFreightQuote) {
+        alert('Please get a freight quote first');
         return;
     }
     
@@ -1559,7 +1694,7 @@ function submitMultiOrder() {
         freightCarrier: window.lastCarrierInfo?.name || 'Freight',
         transitDays: window.lastCarrierInfo?.transitDays || 'N/A',
         totalCost: formatCurrency(totalCost),
-        customerZip: document.getElementById('customerZip').value,
+        customerZip: document.getElementById('destinationZip').value,
         warehouseLocation: productConfig.warehouseLocation || 'TBD'
     };
     
