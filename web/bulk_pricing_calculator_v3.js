@@ -284,9 +284,9 @@ const config = {
     
     // Price-based discount structure
     pricingTiers: [
-        { minAmount: 0, maxAmount: 5000, discount: 10 },
-        { minAmount: 5001, maxAmount: 10000, discount: 15 },
-        { minAmount: 10001, maxAmount: null, discount: 20 }
+        { minAmount: 1000, maxAmount: 2499, discount: 5 },
+        { minAmount: 2500, maxAmount: 4999, discount: 10 },
+        { minAmount: 5000, maxAmount: null, discount: 15 }
     ]
 };
 
