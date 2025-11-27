@@ -10,7 +10,14 @@ app.use(express.json());
 // Uber Freight API configuration
 const UBER_FREIGHT_CLIENT_ID = process.env.UBER_FREIGHT_CLIENT_ID;
 const UBER_FREIGHT_CLIENT_SECRET = process.env.UBER_FREIGHT_CLIENT_SECRET;
-const UBER_FREIGHT_API_BASE = 'https://api.uber.com/v1/freight';
+// Environment: 'sandbox' or 'production'
+const UBER_FREIGHT_ENV = process.env.UBER_FREIGHT_ENV || 'production';
+const UBER_FREIGHT_API_BASE = UBER_FREIGHT_ENV === 'sandbox'
+    ? 'https://sandbox-api.uber.com'
+    : 'https://api.uber.com';
+const UBER_FREIGHT_CUSTOMER_ID = UBER_FREIGHT_ENV === 'sandbox'
+    ? 'LTL-API-TEST'
+    : process.env.UBER_FREIGHT_CUSTOMER_ID || 'LTL-API-TEST';
 
 // OAuth token storage
 let accessToken = null;
@@ -132,59 +139,101 @@ app.post('/api/freight-quote', async (req, res) => {
         }
         
         // Live API implementation
-        
+
         // Get OAuth token
         const token = await getAccessToken();
-        
-        // Prepare load request for Uber Freight
-        const loadRequest = {
-            pickup: {
-                location: {
-                    postal_code: origin_zip,
-                    country_code: 'US'
-                },
-                window: {
-                    start_time: new Date().toISOString(),
-                    end_time: new Date(Date.now() + 86400000).toISOString() // +1 day
-                }
+
+        // Generate unique quote_id with timestamp to avoid caching issues
+        const uniqueQuoteId = `QUILL-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+
+        // Calculate timestamps (Unix format in seconds)
+        const now = Math.floor(Date.now() / 1000);
+        const pickupTime = now + 86400; // +1 day
+        const deliveryTime = now + 259200; // +3 days
+
+        // Build item details for stops
+        const itemDetails = {
+            package_count: {
+                type: "PALLET",
+                count: 1
             },
-            delivery: {
-                location: {
-                    postal_code: destination_zip,
-                    country_code: 'US'
-                },
-                window: {
-                    start_time: new Date(Date.now() + 86400000).toISOString(), // +1 day
-                    end_time: new Date(Date.now() + 259200000).toISOString() // +3 days
-                }
+            name: product_name || "Furniture - General Freight",
+            special_handling_types: ["STK"], // Stackable
+            freight_class: freight_class || "85",
+            weight: {
+                amount: weight,
+                unit: "LB"
             },
-            commodities: [{
-                description: product_name || 'General Freight',
-                weight: {
-                    value: weight,
-                    unit: 'LB'
+            dimensions: {
+                length: 48,
+                width: 40,
+                height: height || 48,
+                unit: "IN"
+            }
+        };
+
+        // Prepare LTL quote request using official UberFreight v2 API format
+        const quoteRequest = {
+            quote_id: uniqueQuoteId,
+            customer_id: UBER_FREIGHT_CUSTOMER_ID,
+            shipping_modes: ["LTL"],
+            requirements: {
+                vehicle_type: "DRY"
+            },
+            stops: [
+                {
+                    sequence_number: 1,
+                    type: "PICKUP",
+                    mode: "LIVE",
+                    facility: {
+                        name: "Origin Warehouse",
+                        address: {
+                            line1: "",
+                            city: "",
+                            principal_subdivision: "",
+                            postal_code: origin_zip,
+                            country: "USA"
+                        }
+                    },
+                    appointment: {
+                        status: "NEEDED",
+                        start_time_utc: pickupTime,
+                        end_time_utc: pickupTime
+                    },
+                    items: [itemDetails]
                 },
-                dimensions: {
-                    length: 48,
-                    width: 40,
-                    height: height,
-                    unit: 'IN'
-                },
-                quantity: 1,
-                freight_class: freight_class || '85'
-            }],
-            equipment_type: 'DRY_VAN',
-            accessorials: [
-                'LIFTGATE_DELIVERY',
-                'INSIDE_DELIVERY',
-                'RESIDENTIAL'
+                {
+                    sequence_number: 2,
+                    type: "DROPOFF",
+                    mode: "LIVE",
+                    facility: {
+                        name: "Destination",
+                        address: {
+                            line1: "",
+                            city: "",
+                            principal_subdivision: "",
+                            postal_code: destination_zip,
+                            country: "USA"
+                        }
+                    },
+                    appointment: {
+                        status: "NEEDED",
+                        start_time_utc: deliveryTime,
+                        end_time_utc: deliveryTime
+                    },
+                    items: [itemDetails]
+                }
             ]
         };
-        
-        // Get instant quote
+
+        // Get instant quote from v2 API
+        const apiUrl = `${UBER_FREIGHT_API_BASE}/v2/freight/loads/quotes`;
+        console.log('API URL:', apiUrl);
+        console.log('Request payload:', JSON.stringify(quoteRequest, null, 2));
+
         const quoteResponse = await axios.post(
-            `${UBER_FREIGHT_API_BASE}/quotes`,
-            loadRequest,
+            apiUrl,
+            quoteRequest,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -194,27 +243,34 @@ app.post('/api/freight-quote', async (req, res) => {
             }
         );
         
-        // Process Uber Freight response
-        const quotes = quoteResponse.data.quotes || [];
-        
+        // Process Uber Freight v2 API response
+        const responseData = quoteResponse.data;
+
+        console.log('Uber Freight API Response:', JSON.stringify(responseData, null, 2));
+
+        // v2 API returns quotes in a different format
+        const quotes = responseData.quotes || [];
+
         if (quotes.length === 0) {
             throw new Error('No quotes available for this route');
         }
-        
-        // Format response
+
+        // Format response - v2 API structure
         const formattedRates = quotes.map(quote => ({
-            carrier: quote.carrier_name || 'Uber Freight',
-            service: quote.service_type || 'Standard',
-            total: quote.total_price.amount,
-            transit_days: quote.estimated_transit_days || 'N/A',
-            scac: quote.scac || 'UBER',
-            quote_id: quote.quote_id
+            carrier: quote.carrier?.name || 'Uber Freight Network',
+            service: quote.service_level || 'Standard LTL',
+            total: quote.all_in_rate?.amount || quote.total_cost,
+            currency: quote.all_in_rate?.currency || 'USD',
+            transit_days: quote.transit_time_days || 'N/A',
+            scac: quote.carrier?.scac || 'UBER',
+            quote_id: quote.quote_id || uniqueQuoteId,
+            line_items: quote.line_items || []
         }));
-        
-        const cheapest = formattedRates.reduce((min, rate) => 
+
+        const cheapest = formattedRates.reduce((min, rate) =>
             parseFloat(rate.total) < parseFloat(min.total) ? rate : min
         );
-        
+
         res.json({
             success: true,
             rates: formattedRates,
@@ -224,35 +280,208 @@ app.post('/api/freight-quote', async (req, res) => {
                 transit_days: cheapest.transit_days,
                 scac: cheapest.scac,
                 quote_id: cheapest.quote_id
-            }
+            },
+            quote_id: uniqueQuoteId
         });
         
     } catch (error) {
         console.error('Freight quote error:', error.message);
+        console.error('Full error:', error.response?.data || error);
         res.status(500).json({
             success: false,
             error: 'Failed to get freight quote',
-            message: error.message
+            message: error.message,
+            details: error.response?.data || null
+        });
+    }
+});
+
+// Enhanced freight quote endpoint with full address support
+app.post('/api/freight-quote-enhanced', async (req, res) => {
+    try {
+        const {
+            origin, // { line1, city, state, postal_code, country }
+            destination, // { line1, city, state, postal_code, country }
+            items, // [{ name, weight, height, length, width, freight_class, pallet_count }]
+            shipping_mode, // 'LTL', 'FTL', or 'IMDL'
+            pickup_date, // Optional: Unix timestamp or ISO string
+            accessorials // Optional: ['LIFTGATE', 'RESIDENTIAL', etc.]
+        } = req.body;
+
+        // Get OAuth token
+        const token = await getAccessToken();
+
+        const uniqueQuoteId = `QUILL-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+
+        // Calculate timestamps
+        const now = Math.floor(Date.now() / 1000);
+        const pickupTime = pickup_date ?
+            (typeof pickup_date === 'string' ? Math.floor(new Date(pickup_date).getTime() / 1000) : pickup_date) :
+            now + 86400;
+        const deliveryTime = pickupTime + 172800; // +2 days from pickup
+
+        // Map accessorials to special handling types
+        const specialHandling = accessorials?.length ? accessorials : ["STK"];
+
+        // Build items array
+        const formattedItems = (items || [{ name: 'General Freight', weight: 100, pallet_count: 1 }]).map(item => ({
+            package_count: {
+                type: "PALLET",
+                count: item.pallet_count || 1
+            },
+            name: item.name || "General Freight",
+            special_handling_types: specialHandling,
+            freight_class: item.freight_class || "85",
+            weight: {
+                amount: item.weight || 100,
+                unit: "LB"
+            },
+            dimensions: {
+                length: item.length || 48,
+                width: item.width || 40,
+                height: item.height || 48,
+                unit: "IN"
+            }
+        }));
+
+        const quoteRequest = {
+            quote_id: uniqueQuoteId,
+            customer_id: UBER_FREIGHT_CUSTOMER_ID,
+            shipping_modes: [shipping_mode || "LTL"],
+            requirements: {
+                vehicle_type: "DRY"
+            },
+            stops: [
+                {
+                    sequence_number: 1,
+                    type: "PICKUP",
+                    mode: "LIVE",
+                    facility: {
+                        name: origin?.name || "Origin",
+                        address: {
+                            line1: origin?.line1 || "",
+                            city: origin?.city || "",
+                            principal_subdivision: origin?.state || "",
+                            postal_code: origin?.postal_code || "",
+                            country: origin?.country || "USA"
+                        }
+                    },
+                    appointment: {
+                        status: "NEEDED",
+                        start_time_utc: pickupTime,
+                        end_time_utc: pickupTime
+                    },
+                    items: formattedItems
+                },
+                {
+                    sequence_number: 2,
+                    type: "DROPOFF",
+                    mode: "LIVE",
+                    facility: {
+                        name: destination?.name || "Destination",
+                        address: {
+                            line1: destination?.line1 || "",
+                            city: destination?.city || "",
+                            principal_subdivision: destination?.state || "",
+                            postal_code: destination?.postal_code || "",
+                            country: destination?.country || "USA"
+                        }
+                    },
+                    appointment: {
+                        status: "NEEDED",
+                        start_time_utc: deliveryTime,
+                        end_time_utc: deliveryTime
+                    },
+                    items: formattedItems
+                }
+            ]
+        };
+
+        console.log('Enhanced quote request:', JSON.stringify(quoteRequest, null, 2));
+
+        const apiUrl = `${UBER_FREIGHT_API_BASE}/v2/freight/loads/quotes`;
+        const quoteResponse = await axios.post(apiUrl, quoteRequest, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        const quotes = quoteResponse.data.quotes || [];
+
+        if (quotes.length === 0) {
+            throw new Error('No quotes available for this route');
+        }
+
+        const formattedRates = quotes.map(quote => ({
+            carrier: quote.carrier?.name || 'Uber Freight Network',
+            service: quote.service_level || 'Standard',
+            total: quote.all_in_rate?.amount || quote.total_cost,
+            currency: quote.all_in_rate?.currency || 'USD',
+            transit_days: quote.transit_time_days || 'N/A',
+            scac: quote.carrier?.scac || 'UBER',
+            quote_id: quote.quote_id || uniqueQuoteId
+        }));
+
+        const cheapest = formattedRates.reduce((min, rate) =>
+            parseFloat(rate.total) < parseFloat(min.total) ? rate : min
+        );
+
+        res.json({
+            success: true,
+            rates: formattedRates,
+            cheapest: {
+                total_cost: cheapest.total,
+                carrier_name: cheapest.carrier,
+                transit_days: cheapest.transit_days,
+                scac: cheapest.scac,
+                quote_id: cheapest.quote_id
+            },
+            quote_id: uniqueQuoteId
+        });
+
+    } catch (error) {
+        console.error('Enhanced freight quote error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get freight quote',
+            message: error.message,
+            details: error.response?.data || null
         });
     }
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
+app.get('/health', (_req, res) => {
+    res.json({
+        status: 'ok',
         service: 'freight-proxy',
         provider: 'Uber Freight',
-        features: ['instant-pricing', 'real-time-tracking', 'digital-pod']
+        api_version: 'v2',
+        environment: UBER_FREIGHT_ENV,
+        api_base: UBER_FREIGHT_API_BASE,
+        customer_id: UBER_FREIGHT_CUSTOMER_ID,
+        supported_modes: ['LTL', 'FTL', 'IMDL'],
+        features: ['ltl-quotes', 'ftl-quotes', 'imdl-quotes', 'real-time-pricing', 'full-address-support']
     });
 });
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Freight proxy server running on port ${PORT}`);
-    console.log('Uber Freight API integration ready');
-    console.log('To enable live quotes:');
-    console.log('1. Sign up at https://developer.uberfreight.com');
-    console.log('2. Create an app and get your Client ID and Secret');
-    console.log('3. Add credentials to .env file');
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`Freight Proxy Server - Uber Freight v2 API Integration`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${UBER_FREIGHT_ENV.toUpperCase()}`);
+    console.log(`API Base URL: ${UBER_FREIGHT_API_BASE}`);
+    console.log(`Customer ID: ${UBER_FREIGHT_CUSTOMER_ID}`);
+    console.log(`API Version: v2`);
+    console.log(`Supported Modes: LTL, FTL, IMDL`);
+    console.log(`\nAvailable endpoints:`);
+    console.log(`  POST /api/freight-quote          - Simple quote (zip-to-zip)`);
+    console.log(`  POST /api/freight-quote-enhanced - Full address quote`);
+    console.log(`  GET  /health                     - Health check`);
+    console.log(`\nCredentials configured: ${UBER_FREIGHT_CLIENT_ID ? '✓' : '✗'}`);
+    console.log(`${'='.repeat(60)}\n`);
 });

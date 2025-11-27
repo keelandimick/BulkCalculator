@@ -1,0 +1,20 @@
+{
+  "name": "bulk-calculator",
+  "version": "1.0.0",
+  "description": "Quill Decor Wholesale Pricing Calculator with UberFreight Integration",
+  "main": "api/freight-quote.js",
+  "scripts": {
+    "dev": "node server/freight-proxy.js",
+    "start": "node server/freight-proxy.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "vercel": "^48.11.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

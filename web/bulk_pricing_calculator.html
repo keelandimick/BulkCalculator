@@ -316,8 +316,40 @@
         <div class="savings" id="savingsBox" style="background: #f4f2ed; color: #384637;">
             Select a product to see pricing comparison
         </div>
-        
-        <button class="add-to-cart" onclick="submitOrderRequest()">Submit Order Request</button>
+
+        <!-- Multi-SKU Order Section -->
+        <button class="add-to-cart" onclick="addToOrder()" style="background: #007bff; margin-top: 20px;">Add to Order</button>
+
+        <div id="orderItemsSection" style="display: none; margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #384637;">Current Order</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="getOrderFreightQuote()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Get Freight Quote</button>
+                    <button onclick="clearOrder()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Clear All</button>
+                </div>
+            </div>
+            <div id="orderItemsList" style="margin-bottom: 15px;"></div>
+            <div style="border-top: 2px solid #384637; padding-top: 10px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Product Subtotal:</span>
+                    <span id="orderSubtotal">$0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #28a745;">
+                    <span>Bulk Discount:</span>
+                    <span id="orderDiscount">-$0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Freight Shipping:</span>
+                    <span id="orderFreight">$0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; padding-top: 10px; border-top: 2px solid #384637;">
+                    <span>Order Total:</span>
+                    <span id="orderTotalAmount">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-to-cart" onclick="submitOrderRequest()" id="submitOrderBtn" style="display: none; margin-top: 20px;">Submit Order Request</button>
     </div>
     
     <!-- Catalog Section -->

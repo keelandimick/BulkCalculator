@@ -265,41 +265,78 @@
             transitDays: urlParams.get('transitDays'),
             totalCost: urlParams.get('totalCost'),
             discount: urlParams.get('discount'),
-            savings: urlParams.get('savings')
+            savings: urlParams.get('savings'),
+            // Multi-SKU order params
+            itemCount: urlParams.get('itemCount'),
+            orderSummary: urlParams.get('orderSummary')
         };
-        
+
+        // Check if this is a multi-SKU order (itemCount exists means it came through the "Add to Order" flow)
+        const isMultiSKU = orderData.itemCount !== undefined && orderData.itemCount !== null;
+
         // Display order summary
-        document.getElementById('orderSummary').innerHTML = `
-            <div class="order-row">
-                <span>Product:</span>
-                <span>${orderData.product}</span>
-            </div>
-            <div class="order-row">
-                <span>Quantity:</span>
-                <span>${orderData.quantity} units</span>
-            </div>
-            <div class="order-row">
-                <span>Unit Cost:</span>
-                <span>${orderData.unitPrice} (${orderData.discount} discount)</span>
-            </div>
-            <div class="order-row">
-                <span>Product Subtotal:</span>
-                <span>${orderData.productSubtotal}</span>
-            </div>
-            <div class="order-row">
-                <span>Freight Shipping:</span>
-                <span>${orderData.freightCost}</span>
-            </div>
-            <div class="order-row total">
-                <span>Total Order:</span>
-                <span>${orderData.totalCost}</span>
-            </div>
-            ${orderData.savings ? `
-                <div style="text-align: center; margin-top: 15px; color: #388e3c; font-weight: bold;">
-                    ${orderData.savings}
+        if (isMultiSKU) {
+            // Multi-SKU order display
+            const items = orderData.orderSummary ? orderData.orderSummary.split('\n').filter(line => line.trim()) : [];
+            const itemsHTML = items.map(item => `<div style="margin-left: 20px; color: #666;">${item}</div>`).join('');
+
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="order-row">
+                    <span>Order Items (${orderData.itemCount}):</span>
+                    <span></span>
                 </div>
-            ` : ''}
-        `;
+                ${itemsHTML}
+                <div class="order-row" style="margin-top: 15px;">
+                    <span>Product Subtotal:</span>
+                    <span>${orderData.productSubtotal}</span>
+                </div>
+                <div class="order-row" style="color: #28a745;">
+                    <span>Bulk Discount (${orderData.discount}):</span>
+                    <span>-${urlParams.get('discountAmount')}</span>
+                </div>
+                <div class="order-row">
+                    <span>Freight Shipping:</span>
+                    <span>${orderData.freightCost}</span>
+                </div>
+                <div class="order-row total">
+                    <span>Total Order:</span>
+                    <span>${orderData.totalCost}</span>
+                </div>
+            `;
+        } else {
+            // Single product order display
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="order-row">
+                    <span>Product:</span>
+                    <span>${orderData.product}</span>
+                </div>
+                <div class="order-row">
+                    <span>Quantity:</span>
+                    <span>${orderData.quantity} units</span>
+                </div>
+                <div class="order-row">
+                    <span>Unit Cost:</span>
+                    <span>${orderData.unitPrice} (${orderData.discount} discount)</span>
+                </div>
+                <div class="order-row">
+                    <span>Product Subtotal:</span>
+                    <span>${orderData.productSubtotal}</span>
+                </div>
+                <div class="order-row">
+                    <span>Freight Shipping:</span>
+                    <span>${orderData.freightCost}</span>
+                </div>
+                <div class="order-row total">
+                    <span>Total Order:</span>
+                    <span>${orderData.totalCost}</span>
+                </div>
+                ${orderData.savings ? `
+                    <div style="text-align: center; margin-top: 15px; color: #388e3c; font-weight: bold;">
+                        ${orderData.savings}
+                    </div>
+                ` : ''}
+            `;
+        }
         
         // Initialize EmailJS
         emailjs.init("xwf0LlpaEm0FB96bD");
@@ -316,53 +353,60 @@
             document.querySelector('button[type="submit"]').disabled = true;
             
             // Create email content
-            const emailSubject = `Bulk Order Request - ${orderData.product} (${orderData.quantity} units)`;
-            const emailBody = `New Bulk Order Request
+            let emailSubject, templateParams;
 
-Customer Information:
-- Name: ${customerName}
-- Email: ${customerEmail}
+            if (isMultiSKU) {
+                // Multi-SKU order email
+                emailSubject = `Bulk Order Request - ${orderData.itemCount} Items`;
 
-Product Details:
-- Product: ${orderData.product}
-- SKU: ${orderData.sku}
-- Quantity: ${orderData.quantity}
+                templateParams = {
+                    // Customer info
+                    customer_name: customerName,
+                    customer_email: customerEmail,
 
-Pricing:
-- Unit Price: ${orderData.unitPrice} (${orderData.discount} discount)
-- Product Subtotal: ${orderData.productSubtotal}
-- Freight Cost: ${orderData.freightCost}
-- Freight Carrier: ${orderData.freightCarrier} (${orderData.transitDays} transit days)
-- Total Order: ${orderData.totalCost}
+                    // Multi-SKU order details
+                    product_name: `Multi-Item Order (${orderData.itemCount} items)`,
+                    order_summary: orderData.orderSummary,
+                    subtotal: orderData.productSubtotal,
+                    discount_percent: orderData.discount,
+                    discount_amount: orderData.discountAmount,
+                    freight_cost: orderData.freightCost,
+                    freight_carrier: orderData.freightCarrier || 'Freight Carrier',
+                    transit_days: orderData.transitDays || 'N/A',
+                    total_cost: orderData.totalCost,
 
-${orderData.savings || ''}
+                    // Email metadata
+                    email_subject: emailSubject,
+                    order_date: new Date().toLocaleString(),
+                    is_multi_sku: true
+                };
+            } else {
+                // Single product order email
+                emailSubject = `Bulk Order Request - ${orderData.product} (${orderData.quantity} units)`;
 
-Customer should be contacted at ${customerEmail} to confirm this order.`;
-            
-            // Prepare email parameters for EmailJS
-            const templateParams = {
-                // Customer info
-                customer_name: customerName,
-                customer_email: customerEmail,
-                
-                // Order details
-                product_name: orderData.product,
-                sku: orderData.sku,
-                quantity: orderData.quantity,
-                warehouse_location: orderData.warehouseLocation,
-                price_per_unit: orderData.unitPrice,
-                subtotal: orderData.productSubtotal,
-                freight_cost: orderData.freightCost,
-                freight_carrier: orderData.freightCarrier,
-                transit_days: orderData.transitDays,
-                total_cost: orderData.totalCost,
-                customer_zip: orderData.customerZip,
-                savings: orderData.savings || 'No volume discount applied',
-                
-                // Email metadata
-                email_subject: emailSubject,
-                order_date: new Date().toLocaleString()
-            };
+                templateParams = {
+                    // Customer info
+                    customer_name: customerName,
+                    customer_email: customerEmail,
+
+                    // Single product order details
+                    product_name: orderData.product,
+                    sku: orderData.sku,
+                    quantity: orderData.quantity,
+                    price_per_unit: orderData.unitPrice,
+                    subtotal: orderData.productSubtotal,
+                    freight_cost: orderData.freightCost,
+                    freight_carrier: orderData.freightCarrier,
+                    transit_days: orderData.transitDays,
+                    total_cost: orderData.totalCost,
+                    savings: orderData.savings || 'No volume discount applied',
+
+                    // Email metadata
+                    email_subject: emailSubject,
+                    order_date: new Date().toLocaleString(),
+                    is_multi_sku: false
+                };
+            }
             
             // Submit via EmailJS
             try {
@@ -379,10 +423,18 @@ Customer should be contacted at ${customerEmail} to confirm this order.`;
                 
                 // Show success message
                 document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('orderReference').innerHTML = `
-                    <strong>${orderData.product}</strong><br>
-                    ${orderData.quantity} units - ${orderData.totalCost}
-                `;
+
+                if (isMultiSKU) {
+                    document.getElementById('orderReference').innerHTML = `
+                        <strong>Multi-Item Order (${orderData.itemCount} items)</strong><br>
+                        ${orderData.totalCost}
+                    `;
+                } else {
+                    document.getElementById('orderReference').innerHTML = `
+                        <strong>${orderData.product}</strong><br>
+                        ${orderData.quantity} units - ${orderData.totalCost}
+                    `;
+                }
                 
                 // Update height after showing success message
                 setTimeout(sendHeightToParent, 100);
