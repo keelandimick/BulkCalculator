@@ -150,46 +150,39 @@
     <script>
         // Function to send height to parent window
         function sendHeightToParent() {
-            // Get all possible height measurements and use the largest
-            const heights = [
-                document.documentElement.scrollHeight,
-                document.documentElement.offsetHeight,
+            // Use a fixed minimum height that fits the form content
+            const minHeight = 900;
+
+            // Get actual content height
+            const bodyHeight = Math.max(
                 document.body.scrollHeight,
                 document.body.offsetHeight,
-                document.body.clientHeight
-            ];
-            
-            const maxHeight = Math.max(...heights);
-            const heightWithPadding = maxHeight + 50; // Add 50px padding for safety
-            
+                document.documentElement.scrollHeight
+            );
+
+            const contentHeight = Math.max(minHeight, bodyHeight + 100);
+
             if (window.parent !== window) {
                 window.parent.postMessage({
-                    height: heightWithPadding,
-                    source: 'bulkCalculator'
+                    height: contentHeight,
+                    source: 'bulkCalculator',
+                    scrollToTop: true
                 }, '*');
             }
         }
-        
+
         // Send height when page loads
         window.addEventListener('load', function() {
             setTimeout(sendHeightToParent, 100);
-            // Auto-scroll to top of page
-            window.scrollTo(0, 0);
-            // Also try to scroll parent window if in iframe
-            if (window.parent !== window) {
-                try {
-                    window.parent.scrollTo(0, 0);
-                } catch(e) {
-                    // Cross-origin restriction, can't scroll parent
-                }
-            }
+            setTimeout(sendHeightToParent, 300);
+            setTimeout(sendHeightToParent, 500);
         });
-        
+
         // Monitor for content changes
         const observer = new MutationObserver(() => {
             sendHeightToParent();
         });
-        
+
         // Start observing once DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             observer.observe(document.body, {
@@ -197,6 +190,7 @@
                 subtree: true,
                 attributes: true
             });
+            sendHeightToParent();
         });
     </script>
     <div class="form-container" id="formContainer">
@@ -357,23 +351,33 @@
 
             if (isMultiSKU) {
                 // Multi-SKU order email
-                emailSubject = `Bulk Order Request - ${orderData.itemCount} Items`;
+                emailSubject = `Bulk Order Request - ${orderData.itemCount} Items (${urlParams.get('totalQuantity')} units)`;
+
+                // Format transit days properly
+                const transitDaysValue = orderData.transitDays || 'N/A';
+                const transitDaysFormatted = transitDaysValue !== 'N/A' ? `${transitDaysValue} transit days` : transitDaysValue;
 
                 templateParams = {
                     // Customer info
                     customer_name: customerName,
                     customer_email: customerEmail,
 
-                    // Multi-SKU order details
+                    // Multi-SKU order details - map to single-item fields for template compatibility
                     product_name: `Multi-Item Order (${orderData.itemCount} items)`,
+                    sku: urlParams.get('skuList') || '',
+                    quantity: urlParams.get('totalQuantity'),  // Template adds "units"
+                    price_per_unit: 'See breakdown below',
                     order_summary: orderData.orderSummary,
                     subtotal: orderData.productSubtotal,
                     discount_percent: orderData.discount,
-                    discount_amount: orderData.discountAmount,
+                    savings: `Bulk Discount (${orderData.discount}): -${urlParams.get('discountAmount')}`,
                     freight_cost: orderData.freightCost,
                     freight_carrier: orderData.freightCarrier || 'Freight Carrier',
-                    transit_days: orderData.transitDays || 'N/A',
+                    transit_days: transitDaysFormatted,
                     total_cost: orderData.totalCost,
+                    warehouse_location: urlParams.get('warehouse') || '',
+                    customer_zip: urlParams.get('destinationZip') || '',
+                    total_weight: urlParams.get('totalWeight') || '',
 
                     // Email metadata
                     email_subject: emailSubject,
@@ -415,12 +419,15 @@
                     'template_414ramm',
                     templateParams
                 );
-                
+
                 console.log('Email sent successfully:', response);
-                
+
+                // Clear order from localStorage after successful submission
+                localStorage.removeItem('bulkCalculatorOrder');
+
                 // Hide form
                 document.getElementById('formContainer').style.display = 'none';
-                
+
                 // Show success message
                 document.getElementById('successMessage').style.display = 'block';
 

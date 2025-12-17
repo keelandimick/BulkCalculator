@@ -214,23 +214,28 @@ module.exports = async function handler(req, res) {
         const pickupTime = now + 86400; // +1 day
         const deliveryTime = now + 259200; // +3 days
 
+        // Calculate number of pallets - max 48" height per pallet
+        const maxHeightPerPallet = 48;
+        const palletCount = Math.max(1, Math.ceil((height || 48) / maxHeightPerPallet));
+        const weightPerPallet = Math.ceil(weight / palletCount);
+
         // Build item details
         const itemDetails = {
             package_count: {
                 type: "PALLET",
-                count: 1
+                count: palletCount
             },
             name: product_name || "Furniture - General Freight",
             special_handling_types: ["STK"],
             freight_class: freight_class || "85",
             weight: {
-                amount: weight,
+                amount: weightPerPallet,
                 unit: "LB"
             },
             dimensions: {
                 length: 48,
                 width: 40,
-                height: height || 48,
+                height: maxHeightPerPallet,
                 unit: "IN"
             }
         };

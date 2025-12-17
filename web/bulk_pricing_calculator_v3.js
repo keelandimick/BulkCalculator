@@ -14,6 +14,51 @@ const furnitureTypes = {
 // Multi-SKU Order Management
 let orderItems = []; // Array to store multiple products: {sku, name, quantity, unitCost, totalCost}
 
+// LocalStorage key for persisting order
+const ORDER_STORAGE_KEY = 'bulkCalculatorOrder';
+
+// Save order to localStorage
+function saveOrderToStorage() {
+    const orderData = {
+        items: orderItems,
+        destinationZip: document.getElementById('destinationZip')?.value || '',
+        lastFreightQuote: window.lastFreightQuote || null,
+        multiOrderFreightQuoted: window.multiOrderFreightQuoted || false
+    };
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderData));
+}
+
+// Load order from localStorage
+function loadOrderFromStorage() {
+    try {
+        const stored = localStorage.getItem(ORDER_STORAGE_KEY);
+        if (stored) {
+            const orderData = JSON.parse(stored);
+            if (orderData.items && orderData.items.length > 0) {
+                orderItems = orderData.items;
+                window.lastFreightQuote = orderData.lastFreightQuote;
+                window.multiOrderFreightQuoted = orderData.multiOrderFreightQuoted;
+
+                // Restore destination zip if available
+                const zipInput = document.getElementById('destinationZip');
+                if (zipInput && orderData.destinationZip) {
+                    zipInput.value = orderData.destinationZip;
+                }
+
+                return true; // Order was restored
+            }
+        }
+    } catch (e) {
+        console.error('Error loading order from storage:', e);
+    }
+    return false; // No order to restore
+}
+
+// Clear order from localStorage
+function clearOrderFromStorage() {
+    localStorage.removeItem(ORDER_STORAGE_KEY);
+}
+
 // Product categories with alphabetically sorted items
 const productCategories = {
     'Accessories': ['DRAWER', 'KEYBOARD-TRAY', 'MONITOR-STAND-BK', 'MONITOR-STAND-WT', 'WHEELS'].sort(),
@@ -283,7 +328,7 @@ const skuComponents = {
 
 // Configuration
 const config = {
-    minFreightCost: 250,  // Minimum freight charge
+    minFreightCost: 0,  // No minimum - use actual UberFreight quotes
     
     // Price-based discount structure
     pricingTiers: [
@@ -604,8 +649,10 @@ async function fetchFreightQuote(destinationZip) {
         const freightQuote = parseFloat(data.cheapest.total_cost);
         const carrierName = data.cheapest.carrier_name;
         const transitDays = data.cheapest.transit_days;
-        
-        const finalQuote = Math.max(freightQuote, config.minFreightCost);
+
+        // Add $150 for accessorials (liftgate + residential delivery)
+        const accessorialFees = 150;
+        const finalQuote = freightQuote + accessorialFees;
         
         // Update freight cost display with carrier info
         const freightCostElement = document.getElementById('freightCost');
@@ -706,22 +753,25 @@ function sendHeightToParent() {
 document.addEventListener('DOMContentLoaded', function() {
     // Add product selector to the page
     addProductSelector();
-    
+
     // Don't select a product by default - user must choose
     // Clear any default values
     resetPricingDisplay();
-    
+
     // Set up event listener for quantity
     document.getElementById('quantity').addEventListener('input', calculatePricing);
-    
+
+    // Clear any saved order on page load (fresh start on every refresh)
+    clearOrderFromStorage();
+
     // Send initial height
     setTimeout(sendHeightToParent, 100);
-    
+
     // Monitor for content changes
     const observer = new MutationObserver(() => {
         sendHeightToParent();
     });
-    
+
     observer.observe(document.body, {
         childList: true,
         subtree: true,
@@ -1168,16 +1218,29 @@ function calculatePricing() {
     const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
     const retailProductTotal = retailPriceWithoutShipping * quantity;
     
-    // Calculate discount based on order subtotal (before discount)
-    let orderSubtotal = retailPriceWithoutShipping * quantity;
-    
-    
+    // Calculate discount based on order subtotal (full retail price including shipping)
+    // If items are already in cart, include their value to determine discount tier
+    let orderSubtotal = productConfig.retailPrice * quantity;
+
+    // Add existing cart items to determine the running discount tier
+    if (orderItems.length > 0) {
+        for (const item of orderItems) {
+            orderSubtotal += item.retailPrice * item.quantity;
+        }
+    }
+
     let discount = 0;
     for (const tier of config.pricingTiers) {
         if (orderSubtotal >= tier.minAmount && (tier.maxAmount === null || orderSubtotal <= tier.maxAmount)) {
             discount = tier.discount;
             break;
         }
+    }
+
+    // Hide/show the Get Real-Time Quote button based on cart status
+    const freightQuoteBtn = document.getElementById('getFreightQuote');
+    if (freightQuoteBtn) {
+        freightQuoteBtn.style.display = orderItems.length > 0 ? 'none' : 'block';
     }
     
     // Apply discount to get bulk pricing
@@ -1202,16 +1265,18 @@ function calculatePricing() {
     document.getElementById('bulkProductTotal').textContent = formatCurrency(bulkProductTotal);
     
     // Show freight cost or prompt for quote
-    if (needsQuote) {
-        // Check if we previously had a quote (quantity or product changed)
-        const needsUpdate = window.lastQuantity && !window.lastFreightQuote;
-        const message = needsUpdate ? 'Update quote' : 'Quote needed';
+    // If items are in cart, show "See Current Order" instead
+    if (orderItems.length > 0) {
+        document.getElementById('freightCost').innerHTML = `<span style="color: #666; font-size: 12px;">See Current Order</span>`;
+        document.getElementById('bulkOrderTotal').innerHTML = `<span style="color: #666; font-size: 12px;">See Current Order</span>`;
+    } else if (needsQuote) {
+        const message = 'Quote needed';
         document.getElementById('freightCost').innerHTML = `<span style="color: #ff9800;">${message}</span>`;
+        document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
     } else {
         document.getElementById('freightCost').textContent = formatCurrency(freightCost);
+        document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
     }
-    
-    document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
     
     // Calculate totals for comparison
     const retailTotal = retailProductTotal + retailShippingTotal;
@@ -1224,11 +1289,17 @@ function calculatePricing() {
     
     // Update submit button state
     const submitButton = document.querySelector('.add-to-cart');
-    
-    if (needsQuote) {
+
+    // If items are in cart, hide compare savings and always enable Add to Order button
+    if (orderItems.length > 0) {
+        savingsBox.style.display = 'none';
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
+    } else if (needsQuote) {
         // Hide savings box until freight quote is obtained
         savingsBox.style.display = 'none';
-        
+
         submitButton.disabled = true;
         submitButton.style.opacity = '0.5';
         submitButton.style.cursor = 'not-allowed';
@@ -1237,21 +1308,21 @@ function calculatePricing() {
         savingsBox.textContent = `You save ${formatCurrency(savings).replace('$', '$')} (${savingsPercent}%) with bulk pricing`;
         savingsBox.style.background = '#4caf50';
         savingsBox.style.color = 'white';
-        
+
         // Enable submit button when bulk is cheaper
         submitButton.disabled = false;
         submitButton.style.opacity = '1';
         submitButton.style.cursor = 'pointer';
     } else {
         savingsBox.style.display = 'block';
-        savingsBox.textContent = 'Normal pricing is more economical for this quantity';
-        savingsBox.style.background = '#f44336';
+        savingsBox.innerHTML = `Normal pricing is more economical for this item alone<br><span style="font-size: 14px; font-weight: normal;">Tip: Add more items to your order to unlock bulk savings</span>`;
+        savingsBox.style.background = '#ff9800';
         savingsBox.style.color = 'white';
-        
-        // Disable submit button when retail is cheaper
-        submitButton.disabled = true;
-        submitButton.style.opacity = '0.5';
-        submitButton.style.cursor = 'not-allowed';
+
+        // Still enable Add to Order - combining items may make it economical
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
     }
     
     // Show/hide MOQ notice
@@ -1262,12 +1333,12 @@ function calculatePricing() {
         moqNotice.style.display = 'none';
     }
     
-    // Add unit comparison only if we have freight quote
-    if (!needsQuote) {
+    // Add unit comparison only if we have freight quote AND no items in cart
+    if (!needsQuote && orderItems.length === 0) {
         const perUnitRetail = productConfig.retailPrice;
         const perUnitBulk = (bulkProductTotal + freightCost) / quantity;
         const textColor = savings > 0 ? '#4caf50' : '#ff5252';
-        
+
         const comparisonHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
                 <div style="text-align: center;">
@@ -1281,14 +1352,18 @@ function calculatePricing() {
                 </div>
             </div>
         `;
-        
+
         if (!document.getElementById('unitComparison')) {
             document.getElementById('savingsBox').insertAdjacentHTML('afterend', `<div id="unitComparison">${comparisonHTML}</div>`);
         } else {
             document.getElementById('unitComparison').innerHTML = comparisonHTML;
         }
+    } else if (orderItems.length > 0) {
+        // Hide unit comparison when items are in cart (user should focus on Current Order section)
+        const unitComparison = document.getElementById('unitComparison');
+        if (unitComparison) unitComparison.remove();
     } else {
-        // Remove unit comparison if no freight quote
+        // Remove unit comparison if no freight quote and no items in cart
         const unitComparison = document.getElementById('unitComparison');
         if (unitComparison) unitComparison.remove();
     }
@@ -1318,8 +1393,8 @@ function calculatePricing() {
         }
     }
     
-    // Add break-even info only if we have a freight quote and bulk is more expensive
-    if (!needsQuote && savings <= 0) {
+    // Add break-even info only if we have a freight quote, bulk is more expensive, AND no items in cart yet
+    if (!needsQuote && savings <= 0 && orderItems.length === 0) {
         const bulkOrderTotal = document.getElementById('bulkOrderTotal').parentElement;
         if (!document.getElementById('breakEvenInfo')) {
             const breakEvenHTML = `
@@ -1330,9 +1405,18 @@ function calculatePricing() {
             bulkOrderTotal.insertAdjacentHTML('afterend', breakEvenHTML);
         }
     } else {
-        // Remove break-even info if bulk is cheaper or no quote
+        // Remove break-even info if bulk is cheaper, no quote, or items already in cart
         const breakEvenInfo = document.getElementById('breakEvenInfo');
         if (breakEvenInfo) breakEvenInfo.remove();
+    }
+
+    // Update Current Order section in real-time to show how adding this item would affect discount
+    if (orderItems.length > 0 && productConfig.sku && quantity > 0) {
+        const pendingItem = {
+            unitCost: retailPriceWithoutShipping,
+            quantity: quantity
+        };
+        displayOrderItems(pendingItem);
     }
 }
 
@@ -1444,23 +1528,69 @@ function addToOrder() {
     // Update UI
     displayOrderItems();
 
-    // Reset multi-order freight flag since order composition changed
-    if (orderItems.length > 1) {
-        window.multiOrderFreightQuoted = false;
+    // Reset freight quote since order composition changed - need new combined quote
+    window.lastFreightQuote = null;
+    window.multiOrderFreightQuoted = false;
+
+    // Save order to localStorage for back button support
+    saveOrderToStorage();
+
+    // Clear the freight quote info
+    const quoteInfo = document.getElementById('freightQuoteInfo');
+    if (quoteInfo) {
+        quoteInfo.innerHTML = '';
     }
 
-    // Show success feedback
-    alert(`Added ${quantity}x ${product.name} to order`);
+    // Reset form fields for next item
+    document.getElementById('quantity').value = 1;
+    document.getElementById('productSelector').value = '';
+    document.getElementById('productSelector').disabled = true;
+    document.getElementById('productSelector').innerHTML = '<option value="">-- First select a product category --</option>';
+
+    // Reset category buttons
+    const categoryButtons = document.getElementById('categoryButtons');
+    if (categoryButtons) {
+        categoryButtons.innerHTML = '<span style="color: #999; font-size: 14px; padding: 10px;">-- First select a furniture type --</span>';
+    }
+
+    // Reset furniture type buttons
+    const furnitureButtons = document.querySelectorAll('.furniture-type-btn');
+    furnitureButtons.forEach(btn => {
+        btn.style.background = 'white';
+        btn.style.color = 'black';
+        btn.style.borderColor = '#e0e0e0';
+    });
+
+    // Hide product image
+    const productImageContainer = document.getElementById('productImageContainer');
+    if (productImageContainer) {
+        productImageContainer.style.display = 'none';
+    }
+
+    // Clear product config
+    productConfig = {};
+
+    // Update the compare section to show freight is handled in Current Order
+    calculatePricing();
+
+    // Scroll to the Current Order section
+    document.getElementById('orderItemsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function displayOrderItems() {
+function displayOrderItems(pendingItem = null) {
     const orderItemsList = document.getElementById('orderItemsList');
     const orderItemsSection = document.getElementById('orderItemsSection');
     const submitButton = document.getElementById('submitOrderBtn');
+    const zipInput = document.getElementById('destinationZip');
 
     if (orderItems.length === 0) {
         orderItemsSection.style.display = 'none';
         submitButton.style.display = 'none';
+        // Re-enable zip input when cart is empty
+        if (zipInput) {
+            zipInput.disabled = false;
+            zipInput.style.backgroundColor = '';
+        }
         return;
     }
 
@@ -1468,13 +1598,25 @@ function displayOrderItems() {
     orderItemsSection.style.display = 'block';
     submitButton.style.display = 'block';
 
+    // Disable zip input when items are in cart (locked to original zip)
+    if (zipInput) {
+        zipInput.disabled = true;
+        zipInput.style.backgroundColor = '#e9ecef';
+    }
+
     // Calculate total order value to determine discount tier
+    // Include pending item if user is configuring a new product
     let subtotal = 0;
     for (const item of orderItems) {
         subtotal += item.unitCost * item.quantity;
     }
 
-    // Determine discount based on total order value
+    // Add pending item value if provided (for real-time discount preview)
+    if (pendingItem && pendingItem.unitCost && pendingItem.quantity) {
+        subtotal += pendingItem.unitCost * pendingItem.quantity;
+    }
+
+    // Determine discount based on total order value (including pending item)
     let discount = 0;
     for (const tier of config.pricingTiers) {
         if (subtotal >= tier.minAmount && (tier.maxAmount === null || subtotal <= tier.maxAmount)) {
@@ -1485,38 +1627,45 @@ function displayOrderItems() {
 
     // Build the items list HTML with discounted prices
     let html = '';
-    for (const item of orderItems) {
+    for (let i = 0; i < orderItems.length; i++) {
+        const item = orderItems[i];
         const discountedUnitCost = item.unitCost * (1 - discount / 100);
         const itemTotal = discountedUnitCost * item.quantity;
         const discountText = discount > 0 ? ` (${discount}% off)` : '';
 
         html += `
-            <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ddd;">
-                <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd;">
+                <div style="flex: 1;">
                     <strong>${item.name}</strong><br>
                     <span style="color: #666; font-size: 14px;">Quantity: ${item.quantity} @ ${formatCurrency(discountedUnitCost)}/unit${discountText}</span>
                 </div>
-                <div style="text-align: right; font-weight: bold;">
+                <div style="text-align: right; font-weight: bold; margin-right: 10px;">
                     ${formatCurrency(itemTotal)}
                 </div>
+                <button onclick="removeOrderItem(${i})" style="background: none; border: none; color: #dc3545; font-size: 18px; cursor: pointer; padding: 5px 10px;" title="Remove item">&times;</button>
             </div>
         `;
     }
 
     orderItemsList.innerHTML = html;
 
-    // Calculate and display total
-    calculateOrderTotal();
+    // Calculate and display total (pass pending item for preview)
+    calculateOrderTotal(pendingItem);
 }
 
-function calculateOrderTotal() {
+function calculateOrderTotal(pendingItem = null) {
     let subtotal = 0;
 
     for (const item of orderItems) {
         subtotal += item.unitCost * item.quantity;
     }
 
-    // Apply bulk discount based on total order value
+    // Add pending item for preview (shows prospective totals)
+    if (pendingItem && pendingItem.unitCost && pendingItem.quantity) {
+        subtotal += pendingItem.unitCost * pendingItem.quantity;
+    }
+
+    // Apply bulk discount based on total order value (including pending item)
     let discount = 0;
     for (const tier of config.pricingTiers) {
         if (subtotal >= tier.minAmount && (tier.maxAmount === null || subtotal <= tier.maxAmount)) {
@@ -1537,24 +1686,66 @@ function calculateOrderTotal() {
     // Determine freight display based on order status
     let freightDisplay;
     let freightCost = 0;
+    let needsFreightQuote = false;
 
-    if (orderItems.length > 1 && !window.multiOrderFreightQuoted) {
-        // Multiple items but no multi-order quote yet
-        freightDisplay = 'Click "Get Freight Quote"';
+    // Check if freight quote is needed (no valid quote exists)
+    if (!window.lastFreightQuote || (orderItems.length > 1 && !window.multiOrderFreightQuoted)) {
+        // No freight quote yet - prompt user to get one
+        freightDisplay = 'Click "Update Freight Quote"';
         freightCost = 0;
+        needsFreightQuote = true;
     } else {
-        // Single item or multi-order quote obtained
-        freightCost = window.lastFreightQuote || 0;
+        // Valid freight quote exists
+        freightCost = window.lastFreightQuote;
         freightDisplay = formatCurrency(freightCost);
     }
 
     const grandTotal = productTotal + freightCost;
+
+    // Calculate regular order total (full retail price + small parcel shipping, no discount)
+    let regularTotal = 0;
+    for (const item of orderItems) {
+        const product = productCatalog[item.sku];
+        if (product) {
+            // Full retail price (includes small parcel shipping)
+            regularTotal += product.retailPrice * item.quantity;
+        }
+    }
 
     // Update all display fields
     document.getElementById('orderSubtotal').textContent = formatCurrency(subtotal);
     document.getElementById('orderDiscount').textContent = '-' + formatCurrency(discountAmount);
     document.getElementById('orderFreight').textContent = freightDisplay;
     document.getElementById('orderTotalAmount').textContent = formatCurrency(grandTotal);
+
+    // Show regular total and savings (only when we have a freight quote)
+    const regularTotalRow = document.getElementById('regularTotalRow');
+    if (regularTotalRow) {
+        if (!needsFreightQuote && freightCost > 0) {
+            regularTotalRow.style.display = 'block';
+            document.getElementById('regularOrderTotal').textContent = formatCurrency(regularTotal);
+            const savings = regularTotal - grandTotal;
+            document.getElementById('orderSavings').textContent = formatCurrency(savings);
+        } else {
+            regularTotalRow.style.display = 'none';
+        }
+    }
+
+    // Enable/disable submit button based on freight quote status
+    const submitButton = document.getElementById('submitOrderBtn');
+    if (submitButton) {
+        if (needsFreightQuote) {
+            submitButton.disabled = true;
+            submitButton.style.background = '#6c757d';
+            submitButton.style.cursor = 'not-allowed';
+            submitButton.textContent = 'Get Freight Quote First';
+        } else {
+            submitButton.disabled = false;
+            submitButton.style.background = '#384637';
+            submitButton.style.cursor = 'pointer';
+            submitButton.textContent = 'Submit Order Request';
+        }
+    }
 }
 
 function clearOrder() {
@@ -1564,7 +1755,38 @@ function clearOrder() {
 
     orderItems = [];
     window.multiOrderFreightQuoted = false;
+    window.lastFreightQuote = null;
+    clearOrderFromStorage();
     displayOrderItems();
+
+    // Show the "Get Real-Time Quote" button again since cart is now empty
+    const freightQuoteBtn = document.getElementById('getFreightQuote');
+    if (freightQuoteBtn) {
+        freightQuoteBtn.style.display = 'block';
+    }
+}
+
+function removeOrderItem(index) {
+    // Remove item at the specified index
+    orderItems.splice(index, 1);
+
+    // Reset freight quote since order composition changed
+    window.multiOrderFreightQuoted = false;
+    window.lastFreightQuote = null;
+
+    // Update the display
+    displayOrderItems();
+
+    // If cart is now empty, show the Get Real-Time Quote button and re-enable zip
+    if (orderItems.length === 0) {
+        const freightQuoteBtn = document.getElementById('getFreightQuote');
+        if (freightQuoteBtn) {
+            freightQuoteBtn.style.display = 'block';
+        }
+    }
+
+    // Save updated order to storage
+    saveOrderToStorage();
 }
 
 async function getOrderFreightQuote() {
@@ -1593,8 +1815,8 @@ async function getOrderFreightQuote() {
     }
 
     // Get warehouse for this destination
-    const warehouse = getClosestWarehouse(destinationZip);
-    const originZip = warehouse.zip;
+    const warehouseKey = getClosestWarehouse(destinationZip);
+    const warehouse = warehouses[warehouseKey];
 
     // Show loading state
     const freightBtn = document.querySelector('button[onclick="getOrderFreightQuote()"]');
@@ -1603,18 +1825,24 @@ async function getOrderFreightQuote() {
     freightBtn.disabled = true;
 
     try {
+        // Use the same API URL logic as fetchFreightQuote
+        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const PROXY_URL = isLocalDev
+            ? 'http://localhost:3001/api/freight-quote'
+            : 'https://bulk-calculator-keelans-projects.vercel.app/api/freight-quote';
+
         // Call freight API with combined totals
-        const response = await fetch('http://localhost:3001/api/freight-quote', {
+        const response = await fetch(PROXY_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                origin_zip: originZip,
+                origin_zip: warehouse.zip,
                 destination_zip: destinationZip,
-                weight: totalWeight,
+                weight: Math.ceil(totalWeight),
                 height: 48, // Standard pallet height
-                freight_class: '85',
+                freight_class: totalWeight < 150 ? '85' : '70',
                 product_name: `Combined Order (${orderItems.length} items)`
             })
         });
@@ -1622,10 +1850,14 @@ async function getOrderFreightQuote() {
         const data = await response.json();
 
         if (data.success && data.cheapest) {
-            const freightCost = parseFloat(data.cheapest.total_cost);
+            const freightQuote = parseFloat(data.cheapest.total_cost);
+
+            // Add $150 for accessorials (liftgate + residential delivery)
+            const accessorialFees = 150;
+            const finalQuote = freightQuote + accessorialFees;
 
             // Store the freight quote for the order
-            window.lastFreightQuote = freightCost;
+            window.lastFreightQuote = finalQuote;
             window.lastCarrierInfo = {
                 name: data.cheapest.carrier_name,
                 transitDays: data.cheapest.transit_days
@@ -1637,48 +1869,25 @@ async function getOrderFreightQuote() {
             // Update the display
             calculateOrderTotal();
 
-            alert(`Freight quote updated: ${formatCurrency(freightCost)} via ${data.cheapest.carrier_name}`);
+            // Save order to storage with updated freight quote
+            saveOrderToStorage();
+
+            // Show success in the freight quote info area
+            const quoteInfo = document.getElementById('freightQuoteInfo');
+            if (quoteInfo) {
+                quoteInfo.innerHTML = `
+                    <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                        ✓ Combined order rate: ${data.cheapest.carrier_name} - ${data.cheapest.transit_days} transit days<br>
+                        <span style="font-size: 12px; color: #666;">From ${warehouse.city}, ${warehouse.state} to ${destinationZip}</span>
+                    </div>
+                `;
+            }
         } else {
             throw new Error(data.message || 'Failed to get freight quote');
         }
     } catch (error) {
         console.error('Freight quote error:', error);
-
-        // Calculate estimated freight by summing individual item freight costs
-        let totalIndividualFreight = 0;
-        for (const item of orderItems) {
-            const itemFreightCost = item.freightCost || 0;
-            console.log(`Item ${item.sku} (qty: ${item.quantity}): freight = $${itemFreightCost}`);
-            totalIndividualFreight += itemFreightCost;
-        }
-
-        console.log(`Total individual freight: $${totalIndividualFreight}`);
-
-        // Apply volume discount tiers (hidden - simulates bulk freight savings)
-        let freightDiscount = 0;
-        if (totalIndividualFreight > 1000) {
-            freightDiscount = 15; // 15% off for $1000+ freight
-        } else if (totalIndividualFreight > 500) {
-            freightDiscount = 10; // 10% off for $500+ freight
-        } else if (totalIndividualFreight > 250) {
-            freightDiscount = 5; // 5% off for $250+ freight
-        }
-
-        console.log(`Applied discount: ${freightDiscount}%`);
-
-        const estimatedFreight = totalIndividualFreight * (1 - freightDiscount / 100);
-
-        console.log(`Final freight after discount: $${estimatedFreight}`);
-
-        window.lastFreightQuote = estimatedFreight;
-        window.lastCarrierInfo = {
-            name: 'Estimated Freight',
-            transitDays: '3-5'
-        };
-        window.multiOrderFreightQuoted = true;
-
-        // Update display silently
-        calculateOrderTotal();
+        alert('Unable to fetch freight quote. Please try again.');
     } finally {
         freightBtn.textContent = originalText;
         freightBtn.disabled = false;
@@ -1722,18 +1931,29 @@ function submitOrderRequest() {
     const freightCost = window.lastFreightQuote || 0;
     const totalCost = productTotal + freightCost;
 
-    // Build order summary for email
+    // Build order summary for email - structured list of items
     let orderSummary = '';
+    let skuList = '';
+    let totalQuantity = 0;
+    const discountText = discount > 0 ? ` (${discount}% off)` : '';
     for (const item of orderItems) {
-        orderSummary += `${item.name}: ${item.quantity} units @ ${formatCurrency(item.unitCost)}\n`;
+        const discountedPrice = item.unitCost * (1 - discount / 100);
+        orderSummary += `• ${item.name}: ${item.quantity} units @ ${formatCurrency(discountedPrice)}/unit${discountText}\n`;
+        skuList += (skuList ? ', ' : '') + item.sku;
+        totalQuantity += item.quantity;
     }
 
     const carrierInfo = window.lastCarrierInfo || { name: 'Freight Carrier', transitDays: 'N/A' };
+    const destinationZip = document.getElementById('destinationZip').value;
+    const warehouseKey = getClosestWarehouse(destinationZip);
+    const warehouse = warehouses[warehouseKey];
 
     // Create URL parameters with order summary
     const params = new URLSearchParams({
         orderSummary: orderSummary,
         itemCount: orderItems.length.toString(),
+        skuList: skuList,
+        totalQuantity: totalQuantity.toString(),
         productSubtotal: formatCurrency(productSubtotal),
         discount: `${discount}%`,
         discountAmount: formatCurrency(discountAmount),
@@ -1742,7 +1962,9 @@ function submitOrderRequest() {
         freightCarrier: carrierInfo.name,
         transitDays: carrierInfo.transitDays,
         totalCost: formatCurrency(totalCost),
-        totalWeight: totalWeight.toFixed(2) + ' lbs'
+        totalWeight: totalWeight.toFixed(2) + ' lbs',
+        destinationZip: destinationZip,
+        warehouse: `${warehouse.city}, ${warehouse.state}`
     });
 
     // Redirect to email form page

@@ -324,7 +324,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: #384637;">Current Order</h3>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="getOrderFreightQuote()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Get Freight Quote</button>
+                    <button onclick="getOrderFreightQuote()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Update Freight Quote</button>
                     <button onclick="clearOrder()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Clear All</button>
                 </div>
             </div>
@@ -345,6 +345,15 @@
                 <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; padding-top: 10px; border-top: 2px solid #384637;">
                     <span>Order Total:</span>
                     <span id="orderTotalAmount">$0</span>
+                </div>
+                <div id="regularTotalRow" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                    <div style="display: flex; justify-content: space-between; color: #999; font-size: 14px;">
+                        <span>Regular Order Total:</span>
+                        <span id="regularOrderTotal" style="text-decoration: line-through;">$0</span>
+                    </div>
+                    <div style="text-align: right; color: #28a745; font-weight: bold; font-size: 14px; margin-top: 5px;">
+                        You save: <span id="orderSavings">$0</span>
+                    </div>
                 </div>
             </div>
         </div>
