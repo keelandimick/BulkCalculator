@@ -1743,7 +1743,7 @@ function calculateOrderTotal(pendingItem = null) {
             submitButton.disabled = false;
             submitButton.style.background = '#384637';
             submitButton.style.cursor = 'pointer';
-            submitButton.textContent = 'Submit Order Request';
+            submitButton.textContent = 'Review Order';
         }
     }
 }
