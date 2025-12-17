@@ -1,0 +1,62 @@
+Date,Carrier,Order Number,SKU,Quantity,Warehouse,Total Charges
+2025-10-08,Central Transport,14236-1-1,CHAIR-WOARMS,4,"Salt Lake City, UT (SLC2)",380.99
+2025-10-15,R&L Carriers,15363-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",263.93
+2025-11-01,R&L Carriers,3830428614 1,CHAIR-WOARMS,6,"Salt Lake City, UT (SLC2)",345.8
+2025-11-01,R&L Carriers,15728-1,D-U-36X22,8,"Salt Lake City, UT (SLC2)",309.84
+2025-01-01,R&L Carriers,3530572016-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",265.95
+2025-01-08,Estes,10616-1,0,0,"Salt Lake City, UT (SLC2)",385.81
+2025-01-15,Estes,10626-1,0,0,"Salt Lake City, UT (SLC2)",407.23
+2025-01-15,R&L Carriers,10784-1,CN-U-46X14,1,"Salt Lake City, UT (SLC2)",241.22
+2025-02-01,R&L Carriers,10978-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",241.67
+2025-02-01,R&L Carriers,10986-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",398.13
+2025-02-08,R&L Carriers,3586303477-1,D-SSB-46X24,5,"Salt Lake City, UT (SLC2)",286.71
+2025-02-15,XPO Logistics,11059-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",288.8
+2025-02-22,R&L Carriers,11235-1,END-TABLE,2,"Salt Lake City, UT (SLC2)",409.8
+2025-03-08,R&L Carriers,3598656410-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",352.9
+2025-03-15,R&L Carriers,11705-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",193.67
+2025-03-22,R&L Carriers,3627505905-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",241.4
+2025-04-01,XPO Logistics,3620656756-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",353.42
+2025-04-08,XPO Logistics,11888-1,42X42-OG,3,"Salt Lake City, UT (SLC2)",364.95
+2025-04-08,R&L Carriers,3636837283-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",266.22
+2025-05-08,Estes,36591931391,B-DN-46X14,1,"Salt Lake City, UT (SLC2)",399.68
+2025-05-08,R&L Carriers,12408-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",319.15
+2025-05-15,Old Dominion,122641,MONITOR-STAND-BK,1,"Salt Lake City, UT (SLC2)",681.88
+2025-05-15,XPO Logistics,12383-1,D-SSB-58X28,2,"Salt Lake City, UT (SLC2)",565.91
+2025-05-29,Estes,53800000499,46X24,54,"Salt Lake City, UT (SLC2)",2244.41
+2025-06-08,R&L Carriers,12938-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",319.15
+2025-06-08,R&L Carriers,12975-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",318.7
+2025-06-08,XPO Logistics,12861-1,42X42-OG,2,"Salt Lake City, UT (SLC2)",385.31
+2025-06-15,R&L Carriers,3690743936-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",351.15
+2025-07-01,Central Transport,3704169792-1,B-DN-46X14,1,"Salt Lake City, UT (SLC2)",544.72
+2025-07-08,Saia,13233-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",355.84
+2025-07-08,Central Transport,13261-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",335.15
+2025-07-08,Central Transport,13318-1,C-TABLE,2,"Salt Lake City, UT (SLC2)",256.66
+2025-07-08,Central Transport,3723368051-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",316.85
+2025-07-08,R&L Carriers,133401,MONITOR-STAND-BK,1,"Salt Lake City, UT (SLC2)",324.45
+2025-07-15,Central Transport,13359-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",349.57
+2025-07-15,R&L Carriers,13582-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",247.3
+2025-07-22,R&L Carriers,13724-1,D-SSW-58X28-KEYBOARD-TRAY,1,"Salt Lake City, UT (SLC2)",328.98
+2025-07-22,Central Transport,3739657419-1,END-X-TABLE,2,"Salt Lake City, UT (SLC2)",252.51
+2025-08-01,Central Transport,13830-1,END-X-TABLE,2,"Salt Lake City, UT (SLC2)",263.62
+2025-08-08,R&L Carriers,13917-1,END-X-TABLE,1,"Salt Lake City, UT (SLC2)",326.6
+2025-08-08,R&L Carriers,3744240982-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",248.2
+2025-08-15,Central Transport,14004-1,CHAIR-WOARMS,4,"Salt Lake City, UT (SLC2)",426.35
+2025-08-15,R&L Carriers,3747309692,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",248.2
+2025-08-22,Central Transport,13852-1,D-SSB,1,"Salt Lake City, UT (SLC2)",317.81
+2025-08-22,Central Transport,3760522885-1,CHAIR-WOARMS,6,"Salt Lake City, UT (SLC2)",279.33
+2025-09-01,R&L Carriers,14332-1-1,CHAIR-WOARMS,4,"Salt Lake City, UT (SLC2)",347.41
+2025-09-01,R&L Carriers,14330.1,B-U-58X14,1,"Salt Lake City, UT (SLC2)",357.23
+2025-09-15,Central Transport,56100001489,46X24,1,"Salt Lake City, UT (SLC2)",340.03
+2025-09-22,R&L Carriers,3798045148-1,CF-SP-42X42,1,"Salt Lake City, UT (SLC2)",318.37
+2025-09-22,R&L Carriers,3789219321-1,CHAIR-WARMS,2,"Salt Lake City, UT (SLC2)",454.89
+2025-09-22,Saia,14808-1,42X42-OG,1,"Salt Lake City, UT (SLC2)",349.14
+2025-10-01,Estes,14853-1,D-SSB-46X24-DRAWER,10,"Sweetwater, TN (SWT1)",562.4
+2025-10-22,Southeastern Freight,151731,MONITOR-STAND-BK,1,"Sweetwater, TN (SWT1)",222.33
+2025-11-01,R&L Carriers,15707-1,CHAIR-WOARMS,8,"Sweetwater, TN (SWT1)",644.55
+2025-03-15,Central Transport,11176-1,D-U-58X28,1,"Sweetwater, TN (SWT1)",264.1
+2025-03-22,Southeastern Freight,1167011,MONITOR-STAND-BK,1,"Sweetwater, TN (SWT1)",195.65
+2025-05-15,Southeastern Freight,36640361091,B-DN-46X14,1,"Sweetwater, TN (SWT1)",426.04
+2025-06-08,Southeastern Freight,129611,MONITOR-STAND-BK,1,"Sweetwater, TN (SWT1)",242.31
+2025-06-15,Southeastern Freight,13024,D-SSB-46X24,6,"Sweetwater, TN (SWT1)",215.36
+2025-07-15,R&L Carriers,13463-1-1,D-U-46X24-DRAWER,1,"Sweetwater, TN (SWT1)",325.95
+2025-08-22,Southeastern Freight,53800000619,D-SSB-58X28-DRAWER,5,"Sweetwater, TN (SWT1)",222.52
