@@ -615,6 +615,13 @@
         ]
     };
 
+    // Freight buffer added to the raw quote based on the active discount tier.
+    function getFreightBuffer(discount) {
+        if (discount >= 15) return 1000;
+        if (discount >= 10) return 500;
+        return 0;
+    }
+
     // Warehouses
     const warehouses = {
         'UT': { zip: '84116', city: 'Salt Lake City', state: 'UT' },
@@ -773,13 +780,24 @@
                 const accessorialFees = 150;
                 const finalQuote = freightQuote + accessorialFees;
 
-                document.getElementById('freightCost').innerHTML = `${formatCurrency(finalQuote)} <span style="font-size: 12px; color: #666;">(${data.cheapest.carrier_name})</span>`;
-
                 window.lastFreightQuote = finalQuote;
                 window.lastCarrierInfo = {
                     name: data.cheapest.carrier_name,
                     transitDays: data.cheapest.transit_days
                 };
+
+                // Determine active discount tier so the displayed freight includes the buffer
+                const previewSubtotal = productConfig.retailPrice * quantity;
+                let previewDiscount = 0;
+                for (const tier of config.pricingTiers) {
+                    if (previewSubtotal >= tier.minAmount && (tier.maxAmount === null || previewSubtotal <= tier.maxAmount)) {
+                        previewDiscount = tier.discount;
+                        break;
+                    }
+                }
+                const displayedFreight = finalQuote + getFreightBuffer(previewDiscount);
+
+                document.getElementById('freightCost').innerHTML = `${formatCurrency(displayedFreight)} <span style="font-size: 12px; color: #666;">(${data.cheapest.carrier_name})</span>`;
 
                 calculatePricing();
 
@@ -829,7 +847,8 @@
         const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * quantity;
         const retailShippingTotal = productConfig.smallParcelShipping * quantity;
-        const freightCost = window.lastFreightQuote || 0;
+        const rawFreightQuote = window.lastFreightQuote || 0;
+        const freightCost = rawFreightQuote > 0 ? rawFreightQuote + getFreightBuffer(discount) : 0;
         const needsQuote = !window.lastFreightQuote;
 
         document.getElementById('retailUnitCost').textContent = formatCurrency(retailPriceWithoutShipping);
@@ -957,7 +976,7 @@
 
         const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * quantity;
-        const freightCost = window.lastFreightQuote;
+        const freightCost = window.lastFreightQuote + getFreightBuffer(discount);
         const totalCost = bulkProductTotal + freightCost;
 
         const retailTotal = (retailPriceWithoutShipping * quantity) + (productConfig.smallParcelShipping * quantity);

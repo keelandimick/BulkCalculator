@@ -326,7 +326,7 @@ const skuComponents = {
 // Configuration
 const config = {
     minFreightCost: 0,  // No minimum - use actual UberFreight quotes
-    
+
     // Price-based discount structure
     pricingTiers: [
         { minAmount: 1000, maxAmount: 2499, discount: 5 },
@@ -334,6 +334,13 @@ const config = {
         { minAmount: 5000, maxAmount: null, discount: 15 }
     ]
 };
+
+// Freight buffer added to the raw quote based on the active discount tier.
+function getFreightBuffer(discount) {
+    if (discount >= 15) return 1000;
+    if (discount >= 10) return 500;
+    return 0;
+}
 
 // State to warehouse assignments
 const warehouseAssignments = {
@@ -650,13 +657,27 @@ async function fetchFreightQuote(destinationZip) {
         // Add $150 for accessorials (liftgate + residential delivery)
         const accessorialFees = 150;
         const finalQuote = freightQuote + accessorialFees;
-        
-        // Update freight cost display with carrier info
-        const freightCostElement = document.getElementById('freightCost');
-        freightCostElement.innerHTML = `${formatCurrency(finalQuote)} <span style="font-size: 12px; color: #666;">(${carrierName})</span>`;
-        
+
         // Update the stored freight cost for calculations
         window.lastFreightQuote = finalQuote;
+
+        // Determine active discount tier so the displayed freight includes the buffer
+        let previewSubtotal = productConfig.retailPrice * quantity;
+        for (const item of orderItems) {
+            previewSubtotal += item.retailPrice * item.quantity;
+        }
+        let previewDiscount = 0;
+        for (const tier of config.pricingTiers) {
+            if (previewSubtotal >= tier.minAmount && (tier.maxAmount === null || previewSubtotal <= tier.maxAmount)) {
+                previewDiscount = tier.discount;
+                break;
+            }
+        }
+        const displayedFreight = finalQuote + getFreightBuffer(previewDiscount);
+
+        // Update freight cost display with carrier info
+        const freightCostElement = document.getElementById('freightCost');
+        freightCostElement.innerHTML = `${formatCurrency(displayedFreight)} <span style="font-size: 12px; color: #666;">(${carrierName})</span>`;
         window.lastCarrierInfo = {
             name: carrierName,
             transitDays: transitDays,
@@ -686,7 +707,7 @@ async function fetchFreightQuote(destinationZip) {
 }
 
 // Calculate freight cost based on total volume
-function calculateFreightCost(sku, quantity) {
+function calculateFreightCost(sku, quantity, discount = 0) {
     const components = skuComponents[sku];
     if (!components) {
         // Fallback for unmapped SKUs
@@ -697,10 +718,10 @@ function calculateFreightCost(sku, quantity) {
             needsQuote: true
         };
     }
-    
+
     // Calculate total volume for all components
     let totalVolume = 0;
-    
+
     for (const component of components) {
         const componentInfo = componentData[component];
         if (componentInfo) {
@@ -708,14 +729,15 @@ function calculateFreightCost(sku, quantity) {
             totalVolume += componentInfo.volume * quantity;
         }
     }
-    
+
     // Convert to cubic feet (from cubic cm)
     const cubicFeet = totalVolume / 28316.8;
-    
+
     // Always use real-time quote if available, otherwise freight is 0 (needs quote)
-    const freightCost = window.lastFreightQuote || 0;
+    const rawQuote = window.lastFreightQuote || 0;
     const needsQuote = !window.lastFreightQuote;
-    
+    const freightCost = rawQuote > 0 ? rawQuote + getFreightBuffer(discount) : 0;
+
     return {
         freightCost,
         totalVolume,
@@ -1243,7 +1265,7 @@ function calculatePricing() {
     const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
     const bulkProductTotal = bulkUnitPrice * quantity;
     const retailShippingTotal = productConfig.smallParcelShipping * quantity;
-    const { freightCost, cubicFeet, needsQuote } = calculateFreightCost(productConfig.sku, quantity);
+    const { freightCost, cubicFeet, needsQuote } = calculateFreightCost(productConfig.sku, quantity, discount);
     
     // Update displays
     // Removed line that was trying to update input element's textContent
@@ -1380,7 +1402,7 @@ function calculatePricing() {
         }
         const bulkUnitPriceTest = retailPriceWithoutShipping * (1 - discountTest / 100);
         const bulkProductTotalTest = bulkUnitPriceTest * q;
-        const { freightCost: freightCostTest } = calculateFreightCost(productConfig.sku, q);
+        const { freightCost: freightCostTest } = calculateFreightCost(productConfig.sku, q, discountTest);
         const bulkTotalTest = bulkProductTotalTest + freightCostTest;
         
         if (bulkTotalTest < retailTotalTest) {
@@ -1433,7 +1455,7 @@ function getBreakEvenQuantity() {
         const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
         const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * q;
-        const { freightCost } = calculateFreightCost(productConfig.sku, q);
+        const { freightCost } = calculateFreightCost(productConfig.sku, q, discount);
         const bulkTotal = bulkProductTotal + freightCost;
         
         if (bulkTotal < retailTotal) {
@@ -1691,8 +1713,8 @@ function calculateOrderTotal(pendingItem = null) {
         freightCost = 0;
         needsFreightQuote = true;
     } else {
-        // Valid freight quote exists
-        freightCost = window.lastFreightQuote;
+        // Valid freight quote exists - add tier-based buffer to raw quote
+        freightCost = window.lastFreightQuote + getFreightBuffer(discount);
         freightDisplay = formatCurrency(freightCost);
     }
 
@@ -1924,7 +1946,8 @@ function submitOrderRequest() {
         totalVolume += itemFreight.totalVolume || 0;
     }
 
-    const freightCost = window.lastFreightQuote || 0;
+    const rawFreightQuote = window.lastFreightQuote || 0;
+    const freightCost = rawFreightQuote > 0 ? rawFreightQuote + getFreightBuffer(discount) : 0;
     const totalCost = productTotal + freightCost;
 
     // Build order summary for email - structured list of items
