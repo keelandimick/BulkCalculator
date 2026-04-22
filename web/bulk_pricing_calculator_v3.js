@@ -63,7 +63,7 @@ function clearOrderFromStorage() {
 const productCategories = {
     'Accessories': ['DRAWER', 'KEYBOARD-TRAY', 'MONITOR-STAND-BK', 'MONITOR-STAND-WT', 'WHEELS'].sort(),
     'Benches': ['B-DN-46X14', 'B-DN-58X14', 'B-U-46X14', 'B-U-58X14'].sort(),
-    'Chairs': ['CHAIR-WARMS', 'CHAIR-WOARMS'].sort(),
+    'Chairs': ['CHAIR-WOARMS'].sort(),
     'Coffee Tables': ['CF-SP-42X42', 'CF-U-36X22', 'CF-U-36X22-2C-TABLE', 'CF-U-36X22-C-TABLE', 'CF-U-36X22-DRAWER', 
                      'CF-U-46X24', 'CF-U-46X24-2C-TABLE', 'CF-U-46X24-C-TABLE', 'CF-U-46X24-DRAWER', 
                      'CF-U-58X28', 'CF-U-58X28-2C-TABLE', 'CF-U-58X28-C-TABLE', 'CF-U-58X28-DRAWER'].sort(),
@@ -128,7 +128,6 @@ const productCatalog = {
     'CF-U-58X28-DRAWER': { name: 'Coffee U 58X28 Drawer', retailPrice: 569.99, productCost: 295.39, smallParcelShipping: 90.00, description: 'Premium 58" x 28" coffee table featuring a spacious drawer for organized storage. The generous proportions and hidden compartment make it ideal for busy family rooms.' },
     
     // Chairs
-    'CHAIR-WARMS': { name: 'Chair with Arms', retailPrice: 419.99, productCost: 264.12, smallParcelShipping: 90.00, description: 'Ergonomic dining chair with comfortable armrests for extended seating comfort. The solid wood construction and contoured design provide excellent support for dining or desk use.' },
     'CHAIR-WOARMS': { name: 'Chair without Arms', retailPrice: 239.99, productCost: 146.67, smallParcelShipping: 50.00, description: 'Streamlined armless dining chair perfect for maximizing seating around tables. The space-saving design allows for easy storage while maintaining comfort and style.' },
     
     // Console Tables
@@ -225,7 +224,6 @@ const componentData = {
     '30X7-SHELF': { unitsPerPallet: 60, volume: 24475, palletVolume: 1468500, weight: 4.14 },
     '42X8-SHELF': { unitsPerPallet: 48, volume: 35948, palletVolume: 1725500, weight: 6.09 },
     '54X8-SHELF': { unitsPerPallet: 18, volume: 91936, palletVolume: 1654853, weight: 15.57 },
-    'CHAIR-WARMS': { unitsPerPallet: 1, volume: 259920, palletVolume: 259920, weight: 44.02 },
     'CHAIR-WOARMS': { unitsPerPallet: 1, volume: 196800, palletVolume: 196800, weight: 33.33 },
     'END-X-TABLE': { unitsPerPallet: 1, volume: 144755, palletVolume: 144755, weight: 24.51 }
 };
@@ -318,7 +316,6 @@ const skuComponents = {
     'KEYBOARD-TRAY': ['KEYBOARD-TRAY'],
     'WHEELS': ['WHEELS'],
     'DRAWER': ['DRAWER'],
-    'CHAIR-WARMS': ['CHAIR-WARMS'],
     'CHAIR-WOARMS': ['CHAIR-WOARMS'],
     '18X7-SHELF': ['18X7-SHELF'],
     '30X7-SHELF': ['30X7-SHELF'],
@@ -1000,7 +997,6 @@ const productImageMap = {
     'CF-U-58X28-DRAWER': 'COFFEE U DRAWER',
     
     // Chairs
-    'CHAIR-WARMS': 'CHAIR-WARMS',
     'CHAIR-WOARMS': 'CHAIR-WOARMS',
     
     // Console Tables
