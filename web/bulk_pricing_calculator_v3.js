@@ -1232,13 +1232,13 @@ function calculatePricing() {
         return;
     }
     
-    // Calculate base pricing without discount
-    const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
-    const retailProductTotal = retailPriceWithoutShipping * quantity;
-    
+    // Normal side shows full retail (small-parcel shipping baked into unit cost)
+    const retailUnitPrice = productConfig.retailPrice;
+    const retailProductTotal = retailUnitPrice * quantity;
+
     // Calculate discount based on order subtotal (full retail price including shipping)
     // If items are already in cart, include their value to determine discount tier
-    let orderSubtotal = productConfig.retailPrice * quantity;
+    let orderSubtotal = retailUnitPrice * quantity;
 
     // Add existing cart items to determine the running discount tier
     if (orderItems.length > 0) {
@@ -1260,22 +1260,17 @@ function calculatePricing() {
     if (freightQuoteBtn) {
         freightQuoteBtn.style.display = orderItems.length > 0 ? 'none' : 'block';
     }
-    
-    // Apply discount to get bulk pricing
-    const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+
+    // Bulk discount applies to the full retail price (shipping included)
+    const bulkUnitPrice = retailUnitPrice * (1 - discount / 100);
     const bulkProductTotal = bulkUnitPrice * quantity;
-    const retailShippingTotal = productConfig.smallParcelShipping * quantity;
     const { freightCost, cubicFeet, needsQuote } = calculateFreightCost(productConfig.sku, quantity, discount);
-    
-    // Update displays
-    // Removed line that was trying to update input element's textContent
-    
+
     // Retail pricing
-    document.getElementById('retailUnitCost').textContent = formatCurrency(retailPriceWithoutShipping);
+    document.getElementById('retailUnitCost').textContent = formatCurrency(retailUnitPrice);
     document.getElementById('retailQuantity').textContent = quantity;
     document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
-    document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
-    document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
+    document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal);
     
     // Bulk pricing
     document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
@@ -1297,7 +1292,7 @@ function calculatePricing() {
     }
     
     // Calculate totals for comparison
-    const retailTotal = retailProductTotal + retailShippingTotal;
+    const retailTotal = retailProductTotal;
     const bulkTotal = bulkProductTotal + freightCost;
     
     // Update savings box
@@ -1353,7 +1348,7 @@ function calculatePricing() {
     
     // Add unit comparison only if we have freight quote AND no items in cart
     if (!needsQuote && orderItems.length === 0) {
-        const perUnitRetail = productConfig.retailPrice;
+        const perUnitRetail = retailUnitPrice;
         const perUnitBulk = (bulkProductTotal + freightCost) / quantity;
         const textColor = savings > 0 ? '#4caf50' : '#ff5252';
 
@@ -1389,9 +1384,9 @@ function calculatePricing() {
     // Calculate actual break-even quantity considering discounts
     let breakEvenQty = 0;
     for (let q = 1; q <= 500; q++) {
-        // Calculate retail total
+        // Calculate retail total (full retail includes small-parcel shipping)
         const retailTotalTest = productConfig.retailPrice * q;
-        
+
         // Calculate bulk total with discount
         let discountTest = 0; // No default discount, use tiers
         for (const tier of config.pricingTiers) {
@@ -1400,7 +1395,7 @@ function calculatePricing() {
                 break;
             }
         }
-        const bulkUnitPriceTest = retailPriceWithoutShipping * (1 - discountTest / 100);
+        const bulkUnitPriceTest = productConfig.retailPrice * (1 - discountTest / 100);
         const bulkProductTotalTest = bulkUnitPriceTest * q;
         const { freightCost: freightCostTest } = calculateFreightCost(productConfig.sku, q, discountTest);
         const bulkTotalTest = bulkProductTotalTest + freightCostTest;
@@ -1431,7 +1426,7 @@ function calculatePricing() {
     // Update Current Order section in real-time to show how adding this item would affect discount
     if (orderItems.length > 0 && productConfig.sku && quantity > 0) {
         const pendingItem = {
-            unitCost: retailPriceWithoutShipping,
+            unitCost: retailUnitPrice,
             quantity: quantity
         };
         displayOrderItems(pendingItem);
@@ -1440,10 +1435,10 @@ function calculatePricing() {
 
 function getBreakEvenQuantity() {
     if (!productConfig.sku) return 0;
-    
+
     for (let q = 1; q <= 500; q++) {
         const retailTotal = productConfig.retailPrice * q;
-        
+
         let discount = 0; // No default discount, use tiers
         for (const tier of config.pricingTiers) {
             if (q >= tier.minQty && (tier.maxQty === null || q <= tier.maxQty)) {
@@ -1451,18 +1446,17 @@ function getBreakEvenQuantity() {
                 break;
             }
         }
-        
-        const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
-        const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+
+        const bulkUnitPrice = productConfig.retailPrice * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * q;
         const { freightCost } = calculateFreightCost(productConfig.sku, q, discount);
         const bulkTotal = bulkProductTotal + freightCost;
-        
+
         if (bulkTotal < retailTotal) {
             return q;
         }
     }
-    
+
     return '>500';
 }
 
@@ -1471,7 +1465,6 @@ function resetPricingDisplay() {
     document.getElementById('retailUnitCost').textContent = '$0';
     document.getElementById('retailQuantity').textContent = '0';
     document.getElementById('retailProductSubtotal').textContent = '$0';
-    document.getElementById('retailShippingTotal').textContent = '$0';
     document.getElementById('retailOrderTotal').textContent = '$0';
     
     document.getElementById('bulkUnitCost').textContent = '$0';
@@ -1528,18 +1521,17 @@ function addToOrder() {
 
     // Get product details
     const product = productCatalog[productConfig.sku];
-    const retailPriceWithoutShipping = product.retailPrice - product.smallParcelShipping;
 
     // Capture the current freight quote for this specific item
     const currentFreightQuote = window.lastFreightQuote || 0;
 
-    // Add item to order
+    // Add item to order — bulk discount applies to full retail (shipping included)
     orderItems.push({
         sku: productConfig.sku,
         name: product.name,
         quantity: quantity,
-        unitCost: retailPriceWithoutShipping,  // Use sale price, not product cost
-        retailPrice: retailPriceWithoutShipping,
+        unitCost: product.retailPrice,
+        retailPrice: product.retailPrice,
         freightCost: currentFreightQuote  // Store the freight cost for this item
     });
 

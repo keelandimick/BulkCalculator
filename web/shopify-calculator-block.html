@@ -322,10 +322,6 @@
                 <span>Product Subtotal:</span>
                 <span id="retailProductSubtotal">$0</span>
             </div>
-            <div class="pricing-row">
-                <span>Normal Shipping:</span>
-                <span id="retailShippingTotal">$0</span>
-            </div>
             <div class="pricing-row total">
                 <span>Total Order:</span>
                 <span id="retailOrderTotal">$0</span>
@@ -832,9 +828,9 @@
             return;
         }
 
-        const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
-        const retailProductTotal = retailPriceWithoutShipping * quantity;
-        let orderSubtotal = productConfig.retailPrice * quantity;
+        const retailUnitPrice = productConfig.retailPrice;
+        const retailProductTotal = retailUnitPrice * quantity;
+        let orderSubtotal = retailUnitPrice * quantity;
 
         let discount = 0;
         for (const tier of config.pricingTiers) {
@@ -844,18 +840,16 @@
             }
         }
 
-        const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+        const bulkUnitPrice = retailUnitPrice * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * quantity;
-        const retailShippingTotal = productConfig.smallParcelShipping * quantity;
         const rawFreightQuote = window.lastFreightQuote || 0;
         const freightCost = rawFreightQuote > 0 ? rawFreightQuote + getFreightBuffer(discount) : 0;
         const needsQuote = !window.lastFreightQuote;
 
-        document.getElementById('retailUnitCost').textContent = formatCurrency(retailPriceWithoutShipping);
+        document.getElementById('retailUnitCost').textContent = formatCurrency(retailUnitPrice);
         document.getElementById('retailQuantity').textContent = quantity;
         document.getElementById('retailProductSubtotal').textContent = formatCurrency(retailProductTotal);
-        document.getElementById('retailShippingTotal').textContent = formatCurrency(retailShippingTotal);
-        document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal + retailShippingTotal);
+        document.getElementById('retailOrderTotal').textContent = formatCurrency(retailProductTotal);
 
         document.getElementById('bulkUnitCost').textContent = discount > 0 ? `${formatCurrency(bulkUnitPrice)} (${discount}% off)` : formatCurrency(bulkUnitPrice);
         document.getElementById('bulkQuantity').textContent = quantity;
@@ -869,7 +863,7 @@
 
         document.getElementById('bulkOrderTotal').textContent = formatCurrency(bulkProductTotal + freightCost);
 
-        const retailTotal = retailProductTotal + retailShippingTotal;
+        const retailTotal = retailProductTotal;
         const bulkTotal = bulkProductTotal + freightCost;
         const savingsBox = document.getElementById('savingsBox');
         const savings = retailTotal - bulkTotal;
@@ -901,7 +895,6 @@
         document.getElementById('retailUnitCost').textContent = '$0';
         document.getElementById('retailQuantity').textContent = '0';
         document.getElementById('retailProductSubtotal').textContent = '$0';
-        document.getElementById('retailShippingTotal').textContent = '$0';
         document.getElementById('retailOrderTotal').textContent = '$0';
         document.getElementById('bulkUnitCost').textContent = '$0';
         document.getElementById('bulkQuantity').textContent = '0';
@@ -962,9 +955,9 @@
             return;
         }
 
-        // Calculate order details
-        const retailPriceWithoutShipping = productConfig.retailPrice - productConfig.smallParcelShipping;
-        let orderSubtotal = productConfig.retailPrice * quantity;
+        // Calculate order details — discount applies to full retail (shipping included)
+        const retailUnitPrice = productConfig.retailPrice;
+        let orderSubtotal = retailUnitPrice * quantity;
 
         let discount = 0;
         for (const tier of config.pricingTiers) {
@@ -974,12 +967,12 @@
             }
         }
 
-        const bulkUnitPrice = retailPriceWithoutShipping * (1 - discount / 100);
+        const bulkUnitPrice = retailUnitPrice * (1 - discount / 100);
         const bulkProductTotal = bulkUnitPrice * quantity;
         const freightCost = window.lastFreightQuote + getFreightBuffer(discount);
         const totalCost = bulkProductTotal + freightCost;
 
-        const retailTotal = (retailPriceWithoutShipping * quantity) + (productConfig.smallParcelShipping * quantity);
+        const retailTotal = retailUnitPrice * quantity;
         const savings = retailTotal - totalCost;
 
         // Store order data
