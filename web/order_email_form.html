@@ -246,23 +246,33 @@
     </div>
     
     <script>
-        // Get order details from URL parameters
+        // Try to get order details from localStorage first (more reliable), fall back to URL params
         const urlParams = new URLSearchParams(window.location.search);
+        let checkoutData = null;
+        try {
+            const stored = localStorage.getItem('bulkCalculatorCheckout');
+            if (stored) checkoutData = JSON.parse(stored);
+        } catch (e) {}
+
+        function getParam(key) {
+            return (checkoutData && checkoutData[key]) || urlParams.get(key);
+        }
+
         const orderData = {
-            product: urlParams.get('product'),
-            sku: urlParams.get('sku'),
-            quantity: urlParams.get('quantity'),
-            unitPrice: urlParams.get('unitPrice'),
-            productSubtotal: urlParams.get('productSubtotal'),
-            freightCost: urlParams.get('freightCost'),
-            freightCarrier: urlParams.get('freightCarrier'),
-            transitDays: urlParams.get('transitDays'),
-            totalCost: urlParams.get('totalCost'),
-            discount: urlParams.get('discount'),
-            savings: urlParams.get('savings'),
+            product: getParam('product'),
+            sku: getParam('sku'),
+            quantity: getParam('quantity'),
+            unitPrice: getParam('unitPrice'),
+            productSubtotal: getParam('productSubtotal'),
+            freightCost: getParam('freightCost'),
+            freightCarrier: getParam('freightCarrier'),
+            transitDays: getParam('transitDays'),
+            totalCost: getParam('totalCost'),
+            discount: getParam('discount'),
+            savings: getParam('savings'),
             // Multi-SKU order params
-            itemCount: urlParams.get('itemCount'),
-            orderSummary: urlParams.get('orderSummary')
+            itemCount: getParam('itemCount'),
+            orderSummary: getParam('orderSummary')
         };
 
         // Check if this is a multi-SKU order (itemCount exists means it came through the "Add to Order" flow)
@@ -286,7 +296,7 @@
                 </div>
                 <div class="order-row" style="color: #28a745;">
                     <span>Bulk Discount (${orderData.discount}):</span>
-                    <span>-${urlParams.get('discountAmount')}</span>
+                    <span>-${getParam('discountAmount')}</span>
                 </div>
                 <div class="order-row">
                     <span>Freight Shipping:</span>
@@ -351,7 +361,7 @@
 
             if (isMultiSKU) {
                 // Multi-SKU order email
-                emailSubject = `Bulk Order Request - ${orderData.itemCount} Items (${urlParams.get('totalQuantity')} units)`;
+                emailSubject = `Bulk Order Request - ${orderData.itemCount} Items (${getParam('totalQuantity')} units)`;
 
                 // Format transit days properly
                 const transitDaysValue = orderData.transitDays || 'N/A';
@@ -364,20 +374,20 @@
 
                     // Multi-SKU order details - map to single-item fields for template compatibility
                     product_name: `Multi-Item Order (${orderData.itemCount} items)`,
-                    sku: urlParams.get('skuList') || '',
-                    quantity: urlParams.get('totalQuantity'),  // Template adds "units"
+                    sku: getParam('skuList') || '',
+                    quantity: getParam('totalQuantity'),  // Template adds "units"
                     price_per_unit: 'See breakdown below',
                     order_summary: orderData.orderSummary,
                     subtotal: orderData.productSubtotal,
                     discount_percent: orderData.discount,
-                    savings: `Bulk Discount (${orderData.discount}): -${urlParams.get('discountAmount')}`,
+                    savings: `Bulk Discount (${orderData.discount}): -${getParam('discountAmount')}`,
                     freight_cost: orderData.freightCost,
                     freight_carrier: orderData.freightCarrier || 'Freight Carrier',
                     transit_days: transitDaysFormatted,
                     total_cost: orderData.totalCost,
-                    warehouse_location: urlParams.get('warehouse') || '',
-                    customer_zip: urlParams.get('destinationZip') || '',
-                    total_weight: urlParams.get('totalWeight') || '',
+                    warehouse_location: getParam('warehouse') || '',
+                    customer_zip: getParam('destinationZip') || '',
+                    total_weight: getParam('totalWeight') || '',
 
                     // Email metadata
                     email_subject: emailSubject,
@@ -424,6 +434,7 @@
 
                 // Clear order from localStorage after successful submission
                 localStorage.removeItem('bulkCalculatorOrder');
+                localStorage.removeItem('bulkCalculatorCheckout');
 
                 // Hide form
                 document.getElementById('formContainer').style.display = 'none';

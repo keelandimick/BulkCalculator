@@ -337,8 +337,6 @@ const config = {
 
 // Freight buffer added to the raw quote based on the active discount tier.
 function getFreightBuffer(discount) {
-    if (discount >= 15) return 1006;
-    if (discount >= 10) return 503;
     return 0;
 }
 
@@ -1195,15 +1193,17 @@ function selectProduct(sku) {
     // Update product image
     updateProductImage(sku);
     
-    // Clear real-time freight quote when product changes
-    window.lastFreightQuote = null;
+    // Clear real-time freight quote when product changes (only for single-product view)
+    if (orderItems.length === 0) {
+        window.lastFreightQuote = null;
+    }
     const quoteInfo = document.getElementById('freightQuoteInfo');
     if (quoteInfo) {
         quoteInfo.innerHTML = '';
     }
-    
+
     // No longer updating removed price display elements
-    
+
     // Recalculate pricing
     calculatePricing();
 }
@@ -1214,13 +1214,18 @@ function calculatePricing() {
         return;
     }
     
-    // Clear real-time quote if quantity changed
+    // Clear real-time quote if quantity changed (only for single-product view, not cart)
     const currentQuantity = parseInt(document.getElementById('quantity').value) || 0;
     if (window.lastQuantity && window.lastQuantity !== currentQuantity) {
-        window.lastFreightQuote = null;
-        const quoteInfo = document.getElementById('freightQuoteInfo');
-        if (quoteInfo) {
-            quoteInfo.innerHTML = '';
+        // Only clear the freight quote if no items are in the cart.
+        // When items are in the cart, the freight quote belongs to the cart order
+        // and should not be affected by browsing/configuring new products.
+        if (orderItems.length === 0) {
+            window.lastFreightQuote = null;
+            const quoteInfo = document.getElementById('freightQuoteInfo');
+            if (quoteInfo) {
+                quoteInfo.innerHTML = '';
+            }
         }
     }
     window.lastQuantity = currentQuantity;
@@ -1911,6 +1916,11 @@ function submitOrderRequest() {
         return;
     }
 
+    if (!window.lastFreightQuote) {
+        alert('Please get a freight quote before submitting your order');
+        return;
+    }
+
     // Calculate totals
     let productSubtotal = 0;
     for (const item of orderItems) {
@@ -1959,8 +1969,8 @@ function submitOrderRequest() {
     const warehouseKey = getClosestWarehouse(destinationZip);
     const warehouse = warehouses[warehouseKey];
 
-    // Create URL parameters with order summary
-    const params = new URLSearchParams({
+    // Save checkout data to localStorage so the order form can reliably read it
+    const checkoutData = {
         orderSummary: orderSummary,
         itemCount: orderItems.length.toString(),
         skuList: skuList,
@@ -1976,7 +1986,11 @@ function submitOrderRequest() {
         totalWeight: totalWeight.toFixed(2) + ' lbs',
         destinationZip: destinationZip,
         warehouse: `${warehouse.city}, ${warehouse.state}`
-    });
+    };
+    localStorage.setItem('bulkCalculatorCheckout', JSON.stringify(checkoutData));
+
+    // Also pass as URL params for backwards compatibility
+    const params = new URLSearchParams(checkoutData);
 
     // Redirect to email form page
     window.location.href = `order_email_form.html?${params.toString()}`;
