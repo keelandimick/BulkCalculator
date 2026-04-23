@@ -1545,9 +1545,12 @@ function addToOrder() {
     // Update UI
     displayOrderItems();
 
-    // Reset freight quote since order composition changed - need new combined quote
-    window.lastFreightQuote = null;
-    window.multiOrderFreightQuoted = false;
+    // If adding a 2nd+ item, clear freight quote since combined shipment needs a new quote.
+    // For the first item, keep the quote the user just obtained — it's still valid.
+    if (orderItems.length > 1) {
+        window.lastFreightQuote = null;
+        window.multiOrderFreightQuoted = false;
+    }
 
     // Save order to localStorage for back button support
     saveOrderToStorage();
