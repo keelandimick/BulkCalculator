@@ -23,6 +23,7 @@ function saveOrderToStorage() {
         items: orderItems,
         destinationZip: document.getElementById('destinationZip')?.value || '',
         lastFreightQuote: window.lastFreightQuote || null,
+        lastCarrierInfo: window.lastCarrierInfo || null,
         multiOrderFreightQuoted: window.multiOrderFreightQuoted || false
     };
     localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderData));
@@ -37,6 +38,7 @@ function loadOrderFromStorage() {
             if (orderData.items && orderData.items.length > 0) {
                 orderItems = orderData.items;
                 window.lastFreightQuote = orderData.lastFreightQuote;
+                window.lastCarrierInfo = orderData.lastCarrierInfo || window.lastCarrierInfo;
                 window.multiOrderFreightQuoted = orderData.multiOrderFreightQuoted;
 
                 // Restore destination zip if available
@@ -1914,6 +1916,20 @@ function submitOrderRequest() {
     if (orderItems.length === 0) {
         alert('Please add items to your order first');
         return;
+    }
+
+    // Recover freight quote from localStorage if the global was lost
+    if (!window.lastFreightQuote) {
+        try {
+            const stored = localStorage.getItem(ORDER_STORAGE_KEY);
+            if (stored) {
+                const data = JSON.parse(stored);
+                if (data.lastFreightQuote) {
+                    window.lastFreightQuote = data.lastFreightQuote;
+                    window.lastCarrierInfo = data.lastCarrierInfo || window.lastCarrierInfo;
+                }
+            }
+        } catch (e) {}
     }
 
     if (!window.lastFreightQuote) {
